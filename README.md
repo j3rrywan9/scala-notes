@@ -119,3 +119,66 @@ Generally, function application associates to the left:
 ```scala
 sum(cube)(1, 10) == (sum(cube))(1, 10)
 ```
+
+## Course 1 Week 3
+
+### Abstract Classes
+
+Abstract classes can contain members which are missing an implementation.
+
+Consequently, no instances of an abstract class can be created with the operator `new`.
+
+### Packages
+
+Classes and objects are organized in packages.
+
+To place a class or object inside a package, use a package clause at the top of your source file.
+
+### Forms of Imports
+
+```scala
+import week3.Rational
+import week3.{Rational, Hello}
+import week3._
+```
+
+### Automatic Imports
+
+Some entities are automatically imported in any Scala program.
+
+These are:
+* All members of package `scala`
+* All members of package `java.lang`
+* All members of the singleton object `scala.Predef`
+
+### Traits
+
+A trait is declared like an abstract class, just with `trait` instead of `abstract class`.
+
+Traits resemble interfaces in Java, but are more powerful because they can contain fields and concrete methods.
+
+### Scala's Class Hierarchy
+
+scala.Any
+
+The base type of all types.
+
+scala.AnyVal
+
+The base type of all primitive types.
+
+scala.AnyRef
+
+The base type of all reference types. Alias of `java.lang.Object`.
+
+scala.Nothing
+
+scala.Null
+
+### Value Parameters
+
+### Type Parameters
+
+### Polymorphism
+
+
