@@ -181,4 +181,90 @@ scala.Null
 
 ### Polymorphism
 
+## Course 1 Week 4
 
+### Functions as Objects
+
+In fact function values are treated as objects in Scala.
+
+The function type `A => B` is just an abbreviation for the class `scala.Function1[A, B]`, which is roughly defined as
+follows:
+```scala
+package scala
+
+trait Function1[A, B] {
+  def apply(x: A): B
+}
+```
+So functions are objects with `apply` method.
+
+There are also traits `Function2`, `Function3`, ... for functions which take more arguments (currently up to 22).
+
+### Expansion of Function Calls
+
+An anonymous function such as
+```scala
+(x: Int) => x * x
+```
+is expanded to:
+```scala
+{ class AnnoFun extends Function1[Int, Int] {
+    def apply(x: Int) = x * x
+  }
+  new AnonFun
+}
+```
+or, shorter, using *anonymous class syntax*:
+```scala
+new Function1[Int, Int] {
+  def apply(x: Int) = x * x
+}
+```
+
+A function call, such as `f(a, b)`, is expanded to
+```scala
+f.apply(a, b)
+```
+So the OO-translation of
+```scala
+val f = (x: Int) => x * x
+f(7)
+```
+would be
+```scala
+val f = new Function1[Int, Int] {
+  def apply(x: Int) = x * x
+}
+f.apply(7)
+```
+This is called *eta expansion* in lambda calculus.
+
+### Decomposition
+
+Scala lets you do type tests and type casts using methods defined in class `Any`:
+```scala
+def isInstanceOf[T]: Boolean
+def asInstanceOf[T]: T
+```
+These correspond to Java's type tests and casts.
+But their use in Scala is discouraged, because there are better alternatives.
+
+### Pattern Matching
+
+#### Case Classes
+
+A *case class* definition is similar to a normal class definition, except that it is preceded by the modifier `case`.
+```scala
+trait Expr
+case class Number(n: Int) extends Expr
+case class Sum(e1: Expr, e2: Expr) extends Expr
+```
+*Pattern matching* is a generalization of `switch` from C/Java to class hierarchies.
+
+It's expressed in Scala using the keyword `match`.
+```scala
+def eval(e: Expr): Int = e match {
+  case Number(n) => n
+  case Sum(e1, e2) => eval(e1) + eval(e2)
+}
+```
