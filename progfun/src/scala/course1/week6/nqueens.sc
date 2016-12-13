@@ -29,4 +29,3 @@ object nqueens {
   queens(4)
   (queens(4) map show) mkString "\n"
 }
-
