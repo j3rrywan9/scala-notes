@@ -6,9 +6,9 @@ If we want to implement high-level concepts following their mathematical theorie
 
 Evaluation of Function Applications
 
-* Evaluate all funciton arguments, from left to right
-* Replace the function application by the funciton's right-hand side, and, at the same time
-* Replace the formal parameters of the fuction by the actual arguments
+* Evaluate all function arguments, from left to right
+* Replace the function application by the function's right-hand side, and, at the same time
+* Replace the formal parameters of the function by the actual arguments
 
 ### The substitution model
 
@@ -187,8 +187,7 @@ scala.Null
 
 In fact function values are treated as objects in Scala.
 
-The function type `A => B` is just an abbreviation for the class `scala.Function1[A, B]`, which is roughly defined as
-follows:
+The function type `A => B` is just an abbreviation for the class `scala.Function1[A, B]`, which is roughly defined as follows:
 ```scala
 package scala
 
@@ -268,3 +267,56 @@ def eval(e: Expr): Int = e match {
   case Sum(e1, e2) => eval(e1) + eval(e2)
 }
 ```
+
+### Lists
+
+Like arrays, lists are **homogeneous**: the elements of a list must all have the same type.
+
+All operations on lists can be expressed in terms of the following three operations:
+* `head`: the first element of the list
+* `tail`
+* `isEmpty`
+
+## Course 1 Week 6
+
+### Collection Hierarchy
+
+A common base class of `List` and `Vector` is `Seq`, the class of all *sequences*.
+
+`Seq` itself is a subclass of `Iterable`.
+
+### Sets vs Sequences
+
+The principal differences between sets and sequences are:
+1. Sets are unordered; the elements of a set do not have a predefined order in which they appear in the set
+2. Sets do not have duplicate elements
+3. The fundamental operation on sets is `contains`
+
+### Map
+
+A map of type `Mapp[Key, Value]` is a data structure that associates keys of type `Key` with values of type `Value`.
+
+### Maps are Iterables
+
+Class `Map[Key, Value]` extends the collection type `Iterable[(Key, Value)]`.
+
+Therefore, maps support the same collection operations as other iterables do.
+
+Note that maps extend iterables of key/value *pairs*.
+
+In fact, the syntax key -> value is just an alternative way to write the pair (key, value).
+
+### Maps are Functions
+
+
+Class `Map[Key, Value]` also extends the function type `Key => Value`, so maps can be used everywhere functions can.
+
+### Querying Map
+
+To query a map without knowing beforehand whether it contains a given key, you can use the `get` operation.
+
+The result of a `get` operation is an `Option` value.
+
+### The `Option` Type
+
+### Decomposing Option
