@@ -1,5 +1,5 @@
 # Coursera Scala Specialization Notes
-
+##
 ## Courses
 
 * [Course 1](Course1.md)
