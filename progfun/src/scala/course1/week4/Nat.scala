@@ -16,7 +16,7 @@ object Zero extends Nat {
 
   override def +(that: Nat): Nat = that
 
-  override def -(that: Nat): Nat  = if (that.isZero) this else throw new Error("negative number")
+  override def -(that: Nat): Nat = if (that.isZero) this else throw new Error("negative number")
 }
 
 class Succ(n: Nat) extends Nat {
