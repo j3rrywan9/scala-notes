@@ -2,13 +2,35 @@
 
 ## Week 1
 
+### Programming Paradigms
+
+Paradigm: In science, a *paradigm* describes distinct concepts or thought patterns in some scientific discipline.
+
+Main programming paradigms:
+* imperative programming
+* functional programming
+* logic programming
+
+Orthogonal to it:
+* object-oriented programming
+
+### Consequences for Programming
+
 If we want to implement high-level concepts following their mathematical theories, there's no place for mutation.
 
-Evaluation of Function Applications
+### Functional Programming
 
-* Evaluate all function arguments, from left to right
-* Replace the function application by the function's right-hand side, and, at the same time
-* Replace the formal parameters of the function by the actual arguments
+* In a *restricted* sense, functional programming (FP) means programming without mutable variables, assignments, loops, and other imperative control structures.
+* In a *wider* sense, functional programming means focusing on the functions.
+* In particular, functions can be values that are produced, consumed, and composed.
+* All this becomes easier in a functional language.
+
+### Evaluation of Function Applications
+
+Applications of parameterized functions are evaluated in a similar way as operators:
+1. Evaluate all function arguments, from left to right
+2. Replace the function application by the function's right-hand side, and, at the same time
+3. Replace the formal parameters of the function by the actual arguments
 
 ### The substitution model
 
@@ -28,16 +50,31 @@ Both strategies reduce to the same final value as long as
 
 CBV has the advantage that every function argument is evaluated only once.
 
-CBN has the advantage that a function argument is not evaluated at all if the corresponding parameter is not used in the
-evaluation of the function's body.
+CBN has the advantage that a function argument is not evaluated at all if the corresponding parameter is not used in the evaluation of the function's body.
 
-If CBV evaluation of an expression *e* terminates, then CBN evaluation of *e* terminates too.
+### CBN, CBV and termination
 
-The other direction is not true.
+We have:
+* If CBV evaluation of an expression *e* terminates, then CBN evaluation of *e* terminates too.
+* The other direction is not true.
+
+### Scala's evaluation strategy
 
 Scala normally uses call-by-value.
 
 But if the type of a function parameter starts with `=>` it uses call-by-name.
+```scala
+def constOne(x: Int, y: => Int) = x
+```
+
+### Conditional Expressions
+
+To express choosing between two alternatives, Scala has a conditional expression `if-else`.
+
+Example:
+```scala
+def abs(x: Int) = if (x > 0) x else -x
+```
 
 ### Rewrite rules for Booleans
 
@@ -46,8 +83,14 @@ But if the type of a function parameter starts with `=>` it uses call-by-name.
 The `def` form is "by-name", its right hand side is evaluated on each use.
 
 There is also a `val` form, which is "by-value".
+
 The right hand side of a `val` definition is evaluated at the point of the definition itself.
+
 Afterwards, the name refers to the value.
+
+### Value Definitions and Termination
+
+The difference between `val` and `def` becomes apparent when the right hand side does not terminate.
 
 Recursive functions need an explicit return type in Scala.
 
@@ -97,8 +140,7 @@ Functional languages treat functions as *first-class values*.
 
 Like any other value, a function can be passed as a parameter and returned as a result.
 
-Functions that take other functions as parameters or that return functions as results are called *higher order
-functions*.
+Functions that take other functions as parameters or that return functions as results are called *higher order functions*.
 
 #### Function Types
 
@@ -108,17 +150,61 @@ So, `Int => Int` is the type of functions that map integers to integers.
 
 #### Anonymous Functions
 
+Passing functions as parameters leads to the creation of many small functions.
+Sometimes it is tedious to have to define (and name) these functions using `def`.
+
 ```scala
 (x: Int, y: Int) => x + y
 ```
 The type of the parameter can be omitted if it can be inferred by the compiler from the context.
 
+If there are several parameters, they are separated by commas.
+
+#### Anonymous Functions are Syntactic Sugar
+
 ### Currying
 
 Generally, function application associates to the left:
 ```scala
+def cube(x: Int): Int = x * x * x
+
+def sum(func: Int => Int): (Int, Int) => Int = {
+  def sumFunc(a: Int, b: Int): Int =
+    if (a > b) 0
+    else func(a) + sumFunc(a + 1, b)
+  sumFunc
+}
+
 sum(cube)(1, 10) == (sum(cube))(1, 10)
 ```
+
+### Multiple Parameter Lists
+
+The definition of functions that return functions is so useful in functional programming that there is a special syntax for it in Scala.
+
+### Functions and Data
+
+#### Classes
+
+#### Objects
+
+We call the elements of a class type *objects*.
+
+We create an object by prefixing an application of the constructor of the class with the operator `new`.
+
+#### Methods
+
+One can go further and also package functions operating on a data abstraction in the data abstraction itself.
+Such functions are called *methods*.
+
+#### Self Reference
+
+On the inside of a class, the name `this` represents the object on which the current method is executed.
+
+#### Constructors
+
+In Scala, a class implicitly introduces a constructor.
+This one is called the *primary constructor* of the class.
 
 ## Week 3
 
@@ -183,6 +269,12 @@ scala.Null
 
 ## Week 4
 
+### Pure Object Orientation
+
+A pure object-orientated language is one in which every value is an object.
+
+If the language is based on classes, this means that the type of each value is a class.
+
 ### Functions as Objects
 
 In fact function values are treated as objects in Scala.
@@ -199,7 +291,7 @@ So functions are objects with `apply` method.
 
 There are also traits `Function2`, `Function3`, ... for functions which take more arguments (currently up to 22).
 
-### Expansion of Function Calls
+### Expansion of Function Values
 
 An anonymous function such as
 ```scala
@@ -220,11 +312,13 @@ new Function1[Int, Int] {
 }
 ```
 
+### Expansion of Function Calls
+
 A function call, such as `f(a, b)`, is expanded to
 ```scala
 f.apply(a, b)
 ```
-So the OO-translation of
+So the object-oriented translation of
 ```scala
 val f = (x: Int) => x * x
 f(7)
@@ -236,7 +330,36 @@ val f = new Function1[Int, Int] {
 }
 f.apply(7)
 ```
+### Functions and Methods
+
 This is called *eta expansion* in lambda calculus.
+
+### Polymorphism
+
+Two principal forms of polymorphism:
+* subtyping
+* generics
+
+Interactions between the two concepts:
+* bounds
+* variance
+
+### Type Bounds
+
+#### Upper Bounds
+
+```scala
+def assertAllPos[S <: IntSet](r: S): S = ...
+```
+Here, `<: IntSet` is an *upper bound* of the type parameter `S`.
+
+It means that `S` can be instantiated only to types that conform to the bound i.e. `IntSet`.
+
+#### Lower Bounds
+
+#### Mixed Bounds
+
+### Covariance
 
 ### Decomposition
 
@@ -267,6 +390,14 @@ def eval(e: Expr): Int = e match {
   case Sum(e1, e2) => eval(e1) + eval(e2)
 }
 ```
+
+### Forms of Patterns
+
+Patterns are constructed from:
+* constructors
+* variables
+* wildcard patterns
+* constants
 
 ### Lists
 
@@ -307,7 +438,6 @@ Note that maps extend iterables of key/value *pairs*.
 In fact, the syntax key -> value is just an alternative way to write the pair (key, value).
 
 ### Maps are Functions
-
 
 Class `Map[Key, Value]` also extends the function type `Key => Value`, so maps can be used everywhere functions can.
 
