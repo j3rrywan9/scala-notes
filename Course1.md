@@ -405,8 +405,24 @@ Like arrays, lists are **homogeneous**: the elements of a list must all have the
 
 All operations on lists can be expressed in terms of the following three operations:
 * `head`: the first element of the list
-* `tail`
-* `isEmpty`
+* `tail`: the list composed of all the elements except the first
+* `isEmpty`: `true` if the list is empty, `false` otherwise
+
+## Week 5
+
+### Pairs and Tuples
+
+### Higher-order List Functions
+
+#### Map
+
+#### Filtering
+
+Another common operation on lists is the selection of all elements satisfying a given condition.
+
+#### Reduction of Lists
+
+Another common operation on lists is to combine the elements of a list using a given operator.
 
 ## Week 6
 
@@ -415,6 +431,16 @@ All operations on lists can be expressed in terms of the following three operati
 A common base class of `List` and `Vector` is `Seq`, the class of all *sequences*.
 
 `Seq` itself is a subclass of `Iterable`.
+
+#### Ranges
+
+#### Some more Sequence Operations
+
+### Combinatorial Search and for Comprehensions
+
+### Sets
+
+Sets are another basic abstraction in the Scala collections.
 
 ### Sets vs Sequences
 
@@ -450,3 +476,13 @@ The result of a `get` operation is an `Option` value.
 ### The `Option` Type
 
 ### Decomposing Option
+
+Since options are defined as case classes, they can be decomposed using pattern matching:
+```scala
+def showCapital(country: String) = capitalOfCountry.get(country) match {
+	case Some(capital) => captial
+	caes None => "missing data"
+}
+```
+
+### Sorted and GroupBy
