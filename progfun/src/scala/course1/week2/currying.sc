@@ -4,6 +4,13 @@ def factorial(x: Int): Int =
   if (x == 0) 1
   else factorial(x - 1)
 
+// Let's rewrite
+//
+// def sum(func: Int => Int, a: Int, b: Int): Int =
+//   if (a > b) 0
+//   else func(a) + sum(func, a + 1, b)
+//
+// as follows.
 // sum is now a function that returns another function of type "(Int, Int) => Int"
 def sum(func: Int => Int): (Int, Int) => Int = {
   def sumFunc(a: Int, b: Int): Int =
@@ -25,7 +32,7 @@ sumCubes(1, 3)
 // sumFactorials is a function of type "(Int, Int) => Int"
 def sumFactorials = sum(factorial)
 
-sumFactorials(1 , 3)
+sumFactorials(1, 3)
 
 // Multiple parameter lists
 def sum2(func: Int => Int)(a: Int, b: Int): Int =
@@ -51,12 +58,12 @@ assert(product(x => x)(1, 5) == fact(5))
 // A more general function which generalizes both sum and product
 def mapReduce(func: Int => Int, combine: (Int, Int) => Int, zero: Int)(a: Int, b: Int): Int =
   if (a > b) zero
-  else combine(func(a), mapReduce(func, combine, zero)(a + 1,b ))
+  else combine(func(a), mapReduce(func, combine, zero)(a + 1, b))
 
 def sum3(func: Int => Int)(a: Int, b: Int): Int =
   mapReduce(func, (x, y) => x + y, 0)(a, b)
 
-assert(sum2(x => x * x * x)(1,3) == sum3(x => x * x * x)(1, 3))
+assert(sum2(x => x * x * x)(1, 3) == sum3(x => x * x * x)(1, 3))
 
 def product2(func: Int => Int)(a: Int, b: Int): Int =
   mapReduce(func, (x, y) => x * y, 1)(a, b)
