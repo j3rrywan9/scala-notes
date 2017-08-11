@@ -60,14 +60,17 @@ def mapReduce(func: Int => Int, combine: (Int, Int) => Int, zero: Int)(a: Int, b
   if (a > b) zero
   else combine(func(a), mapReduce(func, combine, zero)(a + 1, b))
 
+// Write sum in terms of mapReduce
 def sum3(func: Int => Int)(a: Int, b: Int): Int =
   mapReduce(func, (x, y) => x + y, 0)(a, b)
 
 assert(sum2(x => x * x * x)(1, 3) == sum3(x => x * x * x)(1, 3))
 
+// Write product in terms of mapReduce
 def product2(func: Int => Int)(a: Int, b: Int): Int =
   mapReduce(func, (x, y) => x * y, 1)(a, b)
 
+// Write factorial in terms of mapReduce
 def fact2(n: Int) = product2(x => x)(1, n)
 
 assert(fact(5) == fact2(5))
