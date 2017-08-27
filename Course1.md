@@ -164,6 +164,11 @@ If there are several parameters, they are separated by commas.
 
 ### Currying
 
+Functions may define multiple parameter lists.
+When a function is called with a fewer number of parameter lists, then this will yield a function taking the missing parameter lists as its arguments.
+
+Currying transforms a function that takes multiple parameter lists into a chain of functions, each taking a single parameter.
+
 Generally, function application associates to the left:
 ```scala
 def cube(x: Int): Int = x * x * x
@@ -239,27 +244,42 @@ These are:
 
 ### Traits
 
+In Java, as well as in Scala, a class can only have one superclass.
+
 A trait is declared like an abstract class, just with `trait` instead of `abstract class`.
+
+Classes, objects and traits can inherit from at most one class but arbitrary many traits.
 
 Traits resemble interfaces in Java, but are more powerful because they can contain fields and concrete methods.
 
+Once a trait is defined, it can be *mixed in* to a class using either the `extends` or `with` keyword.
+
+If you wish to mix a trait into a class that explicitly extends a superclass, you use `extends` to indicate the superclass and `with` to mix in the trait.
+If you want to mix in multiple traits, you add more `with` clauses.
+
 ### Scala's Class Hierarchy
 
-scala.Any
+* `scala.Any`
 
 The base type of all types.
 
-scala.AnyVal
+* `scala.AnyVal`
 
 The base type of all primitive types.
 
-scala.AnyRef
+* `scala.AnyRef`
 
-The base type of all reference types. Alias of `java.lang.Object`.
+Class **AnyRef** is the root class of all *reference types*.
+All types except the value types descend from this class.
+Alias of `java.lang.Object`.
 
-scala.Nothing
+* `scala.Nothing`
 
-scala.Null
+**Nothing** is a subtype of every other type (including scala.Null); there exist *no instances* of this type.
+
+* `scala.Null`
+
+**Null** is a subtype of all reference types; its only instance is the **null** reference.
 
 ### Value Parameters
 
@@ -346,6 +366,10 @@ Interactions between the two concepts:
 
 ### Type Bounds
 
+Generally, the notation
+* `S <: T` means: `S` is a subtype of `T`, and
+* `S >: T` means: `S` is a supertype of `T`
+
 #### Upper Bounds
 
 ```scala
@@ -360,6 +384,19 @@ It means that `S` can be instantiated only to types that conform to the bound i.
 #### Mixed Bounds
 
 ### Covariance
+
+### Variance
+
+### Function Trait Declaration
+
+So functions are *contravariant* in their argument type(s) and *covariant* in their result type.
+
+This lead to the following revised definition of the `Function1` trait:
+```scala
+trait Function1[-T, +U] {
+  def apply(x: T): U
+}
+```
 
 ### Decomposition
 
@@ -381,6 +418,12 @@ trait Expr
 case class Number(n: Int) extends Expr
 case class Sum(e1: Expr, e2: Expr) extends Expr
 ```
+It also implicitly defines companion objects with `apply` methods.
+
+So you can write `Number(1)` instead of `new Number(1)`.
+
+#### Pattern Matching
+
 *Pattern matching* is a generalization of `switch` from C/Java to class hierarchies.
 
 It's expressed in Scala using the keyword `match`.
@@ -391,7 +434,14 @@ def eval(e: Expr): Int = e match {
 }
 ```
 
-### Forms of Patterns
+#### Match Syntax
+
+Rules:
+* `match` is followed by a sequence of `case`s
+* Each `case` associates an *expression* `expr` with a *pattern* `pat`
+* A `MatchError` exception is thrown if no pattern matches the value of the selector
+
+#### Forms of Patterns
 
 Patterns are constructed from:
 * constructors
@@ -399,14 +449,29 @@ Patterns are constructed from:
 * wildcard patterns
 * constants
 
+#### Evaluating Match Expressions
+
+The whole match expression is rewritten to the right-hand side of the first case where the pattern matches the selector.
+
+References to pattern variables are replaced by the corresponding parts in the selector.
+
 ### Lists
 
 Like arrays, lists are **homogeneous**: the elements of a list must all have the same type.
+The type of a list that has elements of type `T` is written `List[T]`.
+
+#### Operations on Lists
 
 All operations on lists can be expressed in terms of the following three operations:
 * `head`: the first element of the list
 * `tail`: the list composed of all the elements except the first
 * `isEmpty`: `true` if the list is empty, `false` otherwise
+
+#### List Patterns
+
+It is also possible to decompose lists with pattern matching.
+
+#### List Methods
 
 ## Week 5
 
@@ -424,9 +489,19 @@ Another common operation on lists is the selection of all elements satisfying a 
 
 Another common operation on lists is to combine the elements of a list using a given operator.
 
+##### reduceLeft
+
+`reduceLeft` inserts a given binary operator between adjacent elements of a list.
+
 ## Week 6
 
-### Collection Hierarchy
+### Other Sequences
+
+#### Vectors
+
+#### Operations on Vectors
+
+#### Collection Hierarchy
 
 A common base class of `List` and `Vector` is `Seq`, the class of all *sequences*.
 
@@ -434,9 +509,39 @@ A common base class of `List` and `Vector` is `Seq`, the class of all *sequences
 
 #### Ranges
 
+Another simple kind of sequence is the *range*.
+
+It represents a sequence of evenly spaced integers.
+
 #### Some more Sequence Operations
 
+```scala
+xs exists p
+
+xs forall p
+
+xs zip ys
+
+xs.unzip
+
+xs.flatMap f
+
+xs.sum
+
+xs.product
+
+xs.max
+
+xs.min
+```
+
 ### Combinatorial Search and for Comprehensions
+
+#### Handling Nested Sequences
+
+We can extend the usage of higher order functions on sequences to many calculations which are usually expressed using nested loops.
+
+#### for Expression
 
 ### Sets
 
@@ -474,6 +579,13 @@ To query a map without knowing beforehand whether it contains a given key, you c
 The result of a `get` operation is an `Option` value.
 
 ### The `Option` Type
+
+The `Option` type is defined as:
+```scala
+trait Option[+A]
+case class Some[+A](value: A) extends Option[A]
+object None extends Option[Nothing]
+```
 
 ### Decomposing Option
 
