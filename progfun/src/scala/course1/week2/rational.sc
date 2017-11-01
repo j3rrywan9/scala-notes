@@ -1,14 +1,51 @@
-class Rational(x: Int, y: Int) {
+class Rational(n: Int, d: Int) {
+  /** Precondition */
+  require(d != 0, "denominator must be non-zero")
+
+  /**
+    * Auxiliary constructor.
+    * @param n the numerator.
+    * @return
+    */
+  def this(n: Int) = this(n, 1)
+
+  /**
+    * Calculates the greatest common divisor of two integers.
+    * @param a first integer.
+    * @param b second integer.
+    * @return the greatest common divisor of a and b.
+    */
   private def gcd(a: Int, b: Int): Int =
     if (b == 0) a else gcd(b, a % b)
-  def numer = x / gcd(x, y)
-  def denom = y / gcd(x, y)
+
+  private val g = gcd(n.abs, d.abs)
+
+  val numer = n / g
+  val denom = d / g
+
+  def add(that: Rational) =
+    new Rational(numer * that.denom + that.numer * denom, denom * that.denom)
 
   def less(that: Rational) =
-    numer * that.denom < that.numer * denom
+    this.numer * that.denom < that.numer * this.denom
+
+  def max(that: Rational) =
+    if (this.less(that)) that else this
+
+  def neg: Rational =
+    new Rational(-numer, denom)
+
+  def sub(that: Rational) =
+    add(that.neg)
+
+  override def toString = numer + "/" + denom
 }
 
 val x = new Rational(1, 3)
 val y = new Rational(5, 7)
 
+y.add(y)
+x.neg
+x.sub(y)
 x.less(y)
+x.max(y)
