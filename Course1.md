@@ -162,6 +162,13 @@ If there are several parameters, they are separated by commas.
 
 #### Anonymous Functions are Syntactic Sugar
 
+An anonymous function `(x1: T1, ..., xn: Tn) => E` can always be expressed using `def` as follows:
+```scala
+def f(x1: T1, ..., xn: Tn) = E; f
+```
+where `f` is an arbitrary, fresh name(that's not ye used in the program).
+One can therefore say that anonymous functions are `syntactic sugar`.
+
 ### Currying
 
 Functions may define multiple parameter lists.
@@ -187,6 +194,12 @@ sum(cube)(1, 10) == (sum(cube))(1, 10)
 
 The definition of functions that return functions is so useful in functional programming that there is a special syntax for it in Scala.
 
+For example, the following definition of `sum` is equivalent to the one with the nested `sumFunc` function, but shorter:
+```scala
+def sum(f: Int => Int)(a: Int, b: Int): Int =
+  if (a > b) 0 else f(a) + sum(f)(a + 1, b)
+```
+
 ### Functions and Data
 
 #### Classes
@@ -211,6 +224,12 @@ On the inside of a class, the name `this` represents the object on which the cur
 In Scala, a class implicitly introduces a constructor.
 This one is called the *primary constructor* of the class.
 
+The Scala compiler will compile any code you place in the class body, which isn't part of a field or a method definition, into the primary constructor.
+
+#### Auxiliary Constructors
+
+In Scala, constructors other than the primary constructor are called *auxiliary constructors*.
+
 ## Week 3
 
 ### Abstract Classes
@@ -218,6 +237,18 @@ This one is called the *primary constructor* of the class.
 Abstract classes can contain members which are missing an implementation.
 
 Consequently, no instances of an abstract class can be created with the operator `new`.
+
+### Base Classes and Subclasses
+
+In Scala, any user-defined class extends another class.
+
+If no superclass is given, the standard class `Object` in the Java package `java.lang` is assumed.
+
+### Programs
+
+It is possible to create standalone applications in Scala.
+
+Each such application contains an object with a `main` method.
 
 ### Packages
 
@@ -232,6 +263,11 @@ import week3.Rational
 import week3.{Rational, Hello}
 import week3._
 ```
+The first two forms are called `named imports`.
+
+The last form is called a `wildcard import`.
+
+You can import from either a package or an object.
 
 ### Automatic Imports
 
@@ -285,7 +321,27 @@ Alias of `java.lang.Object`.
 
 ### Type Parameters
 
+Type parameters are written in square brackets.
+
+### Types and Evaluation
+
+Type parameters do not affect evaluation in Scala.
+
+We can assume that all type parameters and type arguments are removed before evaluating the program.
+
+This is also called `type erasure`.
+
 ### Polymorphism
+
+Polymorphism means that a function type comes "in many forms".
+
+In programming it means that
+* the function can be applied to arguments of many types
+* the type can have instances of many types
+
+We have seen two principal forms of polymorphism:
+* subtyping: instances of a subclass can be passed to a base class
+* generics: instances of a function or class are created by type parameterization
 
 ## Week 4
 
@@ -319,7 +375,7 @@ An anonymous function such as
 ```
 is expanded to:
 ```scala
-{ class AnnoFun extends Function1[Int, Int] {
+{ class AnonFun extends Function1[Int, Int] {
     def apply(x: Int) = x * x
   }
   new AnonFun
@@ -383,9 +439,26 @@ It means that `S` can be instantiated only to types that conform to the bound i.
 
 #### Mixed Bounds
 
+Finally, it is also possible to mix a lower bound with an upper bound.
+
 ### Covariance
 
 ### Variance
+
+Roughly speaking, a type that accepts mutations of its elements should not be covariant.
+
+But immutable types can be covariant, if some conditions on methods are met.
+
+### Definition of Variance
+
+Scala lets you declare the variance of a type by annotating the type parameter:
+```scala
+class C[+T] { ... }  // C is covariant
+
+class C[-T] { ... }  // C is contravariant
+
+class C[T] { ... }  // C is nonvariant
+```
 
 ### Function Trait Declaration
 
@@ -397,6 +470,10 @@ trait Function1[-T, +U] {
   def apply(x: T): U
 }
 ```
+
+### Variance Check
+
+### Making Classes Covariant 
 
 ### Decomposition
 
