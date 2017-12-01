@@ -12,6 +12,12 @@ object listfun {
 
   val data = List("a", "a", "a", "b", "c", "c", "a")
 
+  /**
+    * Pack consecutive duplicates of list elements into sub-lists.
+    * @param xs the list.
+    * @tparam T
+    * @return
+    */
   def pack[T](xs: List[T]): List[List[T]] = xs match {
     case Nil => Nil
     case x :: _ =>
@@ -21,6 +27,12 @@ object listfun {
 
   pack(data)
 
+  /**
+    * Produce the run-length encoding of a list.
+    * @param xs the list.
+    * @tparam T
+    * @return
+    */
   def encode[T](xs: List[T]): List[(T, Int)] =
     pack(xs) map (ys => (ys.head, ys.length))
 
