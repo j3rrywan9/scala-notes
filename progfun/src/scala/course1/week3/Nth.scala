@@ -1,6 +1,6 @@
 import course1.week3._
 
-object nth {
+object Nth extends App {
   /**
     * Take an integer n and a list and select the n'th element of the list.
     * @param n the integer.
@@ -15,6 +15,6 @@ object nth {
 
   val list = new Cons(1, new Cons(2, new Cons(3, new Nil)))
 
-  nth(2, list)
-  nth(-1, list)
+  println(nth(2, list))
+  println(nth(-1, list))
 }
