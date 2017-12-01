@@ -1,10 +1,21 @@
 package course1.week5
 
-object mergesort {
-  def msort(xs: List[Int]): List[Int] = {
+object MergeSort extends App {
+  /**
+    * Merge sort a list of integers.
+    * @param xs the list of integers.
+    * @return
+    */
+  def mergeSort(xs: List[Int]): List[Int] = {
     val n = xs.length / 2
     if (n == 0) xs
     else {
+      /**
+        * Merge two sorted sub-lists of integers into a single sorted list of integers.
+        * @param xs the first sorted list of integers.
+        * @param ys the second sorted list of integers.
+        * @return
+        */
       def merge(xs: List[Int], ys: List[Int]): List[Int] = (xs, ys) match {
         case (Nil, ys) => ys
         case (xs, Nil) => xs
@@ -13,11 +24,12 @@ object mergesort {
           else y :: merge(xs, ys1)
       }
 
-      val (fst, snd) = xs splitAt(n)
-      merge(msort(fst), msort(snd))
+      val (first, second) = xs splitAt(n)
+      merge(mergeSort(first), mergeSort(second))
     }
   }
 
   val nums = List(2, -4, 5, 7, 1)
-  msort(nums)
+  println("Before sorting: " + nums.mkString("(", ", ", ")"))
+  println("After sorting: " + mergeSort(nums).mkString("(", ", ", ")"))
 }
