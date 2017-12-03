@@ -534,7 +534,10 @@ References to pattern variables are replaced by the corresponding parts in the s
 
 ### Lists
 
+#### The List Type
+
 Like arrays, lists are **homogeneous**: the elements of a list must all have the same type.
+
 The type of a list that has elements of type `T` is written `List[T]`.
 
 #### Operations on Lists
@@ -550,17 +553,51 @@ It is also possible to decompose lists with pattern matching.
 
 #### List Methods
 
-## Week 5
-
 ### Pairs and Tuples
+
+The pair consisting of `x` and `y` is written `(x, y)` in Scala.
+```scala
+val pair = ("answer", 42)
+```
+The type of `pair` above is `(String, Int)`.
+
+Pairs can also be used as patterns:
+```scala
+val (lable, value) = pair
+```
+This works analogously for tuples with more than two elements.
+
+#### Translation of Tuples
+
+#### Parameterization with Ordered
+
+There is already a class in the standard library that represents orderings.
+```scala
+scala.math.Ordering[T]
+```
+provides ways to compare elements of type `T`.
+
+#### Implicit Parameters
+
+The compiler will figure out the right implicit to pass based on the demanded type.
+
+#### Rules for Implicit Parameters
 
 ### Higher-order List Functions
 
+#### Applying a Function to Elements of a List
+
+A common operation is to transform each element of a list and then return the list of results.
+
 #### Map
+
+This scheme can be generalized to the method `map` of the `List` class.
 
 #### Filtering
 
 Another common operation on lists is the selection of all elements satisfying a given condition.
+
+This pattern is generalized by the method `filter` of the `List` class.
 
 #### Reduction of Lists
 
@@ -568,13 +605,23 @@ Another common operation on lists is to combine the elements of a list using a g
 
 ##### reduceLeft
 
+This pattern can be abstracted out using the generic method `reduceLeft`.
+
 `reduceLeft` inserts a given binary operator between adjacent elements of a list.
+
+##### foldLeft
+
+##### foldRight and reduceRight
 
 ## Week 6
 
 ### Other Sequences
 
 #### Vectors
+
+The Scala library also defines an alternative sequence implementation, `Vector`.
+
+This one has more evenly balanced access patterns than `List`.
 
 #### Operations on Vectors
 
@@ -594,15 +641,25 @@ It represents a sequence of evenly spaced integers.
 
 ```scala
 xs exists p
+```
 
+```scala
 xs forall p
+```
+`true` if `p(x)` holds for all elements `x` of `xs`, `false` otherwise.
 
+```scala
 xs zip ys
 
 xs.unzip
+```
 
+```scala
 xs.flatMap f
+```
+Applies collection-valued function `f` to all elements of `xs` and concatenates the results.
 
+```scala
 xs.sum
 
 xs.product
@@ -651,8 +708,11 @@ Class `Map[Key, Value]` also extends the function type `Key => Value`, so maps c
 
 ### Querying Map
 
-To query a map without knowing beforehand whether it contains a given key, you can use the `get` operation.
-
+To query a map without knowing beforehand whether it contains a given key, you can use the `get` operation:
+```scala
+capitalOfCountry get "US"
+capitalOfCountry get "Andorra"
+```
 The result of a `get` operation is an `Option` value.
 
 ### The `Option` Type
@@ -675,3 +735,6 @@ def showCapital(country: String) = capitalOfCountry.get(country) match {
 ```
 
 ### Sorted and GroupBy
+
+`groupBy` is available on Scala collections.
+It partitions a collection into a map of collections according to a *discriminator function* `f`.
