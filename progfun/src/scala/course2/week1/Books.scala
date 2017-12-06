@@ -1,12 +1,12 @@
 package course2.week1
 
-object books {
+object Books extends App {
   case class Book(title: String, authors: List[String])
 
   val books = List(
     Book(
       title = "Structure and Interpretation of Computer Programs",
-      authors = List("Abelson, Harald", "Susman, Gerald J."),
+      authors = List("Abelson, Harald", "Sussman, Gerald J."),
     ),
     Book(
       title = "Introduction to Functional Programming",
@@ -26,9 +26,10 @@ object books {
     )
   )
 
-  for (b <- books; a <- b.authors if a startsWith("Bloch,")) yield b.title
+  val titles = for (b <- books; a <- b.authors if a startsWith("Bloch,")) yield b.title
+  println(titles)
 
-  for {
+  val authors = for {
     b1 <- books
     b2 <- books
     if b1.title < b2.title
@@ -36,4 +37,5 @@ object books {
     a2 <- b2.authors
     if a1 == a2
   } yield a1
+  println(authors)
 }
