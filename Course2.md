@@ -201,19 +201,123 @@ There is however an alternative operator `#::` which produces a stream.
 
 #### Lazy Evaluation in Scala
 
+Scala uses strict evaluation by default, but allows lazy evaluation of value definition with the `lazy val` form:
+```scala
+lazy val x = expr
+```
+
+#### Infinite Streams
+
+```scala
+def from(n: Int): Stream[Int] = n #:: from(n + 1)
+```
+
 ## Week 3
 
-### Stateful Objects
+### Functions and State
+
+#### Stateful Objects
 
 One normally describes the world as a set of objects, some of which have state that *changes* over the course of time.
 
 An object *has a state* if its behavior is influenced by its history.
 
-### Implementation of State
+#### Implementation of State
 
 Every form of mutable state is constructed from variables.
 
-### State in Objects
+A variable definition is written like a value definition, but with the keyword `var` in place of `val`.
+
+#### State in Objects
 
 In practice, objects with state are usually represented by objects that have some variable members.
+
+### Identity and Change
+
+#### Operational Equivalence
+
+### Loops
+
+#### for Loops
+
+THe classical `for` loop in Java can *not* be modeled simply by a higher-order function.
+
+### Discrete Event Simulation
+
+#### Digital Circuits
+
+A digital circuit is composed of wires and of functional components.
+
+The base components (gates) are:
+* The Inverter
+* The AND Gate
+* The OR Gate
+
+Other components can be constructed by combining these base components.
+
+#### A Language for Digital Circuits
+
+#### Gates
+
+#### Constructing Components
+
+#### Discrete Event Simulation
+
+A discrete event simulator performs *actions*, specified by the user at a given *moment*.
+
+An `action` is a function that doesn't take any parameters and which returns `Unit`:
+```scala
+type Action = () => Unit
+```
+
+The *time* is simulated; it has nothing to do with the actual time.
+
+#### Simulation Trait
+
+#### Implementing Wires
+
+#### State of a Wire
+
+The state of a wire is modeled by two private variables:
+* `sigVal` represents the current value of the signal.
+* `actions` represents the actions currently attached to the wire.
+
+## Week 4
+
+### Functional Reactive Programming
+
+#### What is FRP?
+
+Reactive programming is about reacting to sequences of *events* that happen in *time*.
+
+Functional view: Aggregate an event sequence into a *signal*.
+* A signal is a value that changes over time.
+* It is represented as a function from time domain to the value domain.
+* Instead of propagating updates to mutable state, we define new signals in terms of existing ones.
+
+#### Fundamental Signal Operations
+
+There are two fundamental operations over signals:
+1. Obtain the value of the signal at the current time.
+2. Define a signal in terms of other signals.
+
+#### Variable Signals
+
+Values of type `Signal` are immutable.
+
+But our library also defines a subclass `Var` of `Signal` for signals that can be changed.
+
+`Var` provides an "update" operation, which allows to redefine the value of a signal from the current time on.
+```scala
+val sig = Var(3)
+sig.update(5)
+```
+
+### A Simple FRP Implementation
+
+#### Implementation Idea
+
+### Timely Effects
+
+#### Implementation of `flatMap` on `Future`
 
