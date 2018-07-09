@@ -1,14 +1,32 @@
-object intsets {
-  val t1 = new NonEmpty(3, Empty, Empty)
-  val t2 = t1 incl 4
-}
-
+/**
+  * Integer set.
+  */
 abstract class IntSet {
-  def incl(x: Int): IntSet
+  /**
+    * Check if integer set contains a given integer.
+    * @param x the integer.
+    * @return
+    */
   def contains(x: Int): Boolean
+
+  /**
+    * Add a given integer to integer set.
+    * @param x the integer.
+    * @return
+    */
+  def incl(x: Int): IntSet
+
+  /**
+    * Form the union of two integer sets.
+    * @param other the other integer set.
+    * @return
+    */
   def union(other: IntSet): IntSet
 }
 
+/**
+  * An object for empty integer set.
+  */
 object Empty extends IntSet {
   def contains(x: Int): Boolean = false
   def incl(x: Int): IntSet = new NonEmpty(x, Empty, Empty)
@@ -16,6 +34,12 @@ object Empty extends IntSet {
   override def toString = "."
 }
 
+/**
+  * A class for non-empty integer set.
+  * @param elem the integer stored in the node.
+  * @param left the left subtree.
+  * @param right the right subtree.
+  */
 class NonEmpty(elem: Int, left: IntSet, right: IntSet) extends IntSet {
   def contains(x: Int): Boolean =
     if (x < elem) left contains x
@@ -32,3 +56,6 @@ class NonEmpty(elem: Int, left: IntSet, right: IntSet) extends IntSet {
 
   override def toString = "{" + left + elem + right + "}"
 }
+
+val t1 = new NonEmpty(3, Empty, Empty)
+val t2 = t1 incl 4
