@@ -42,6 +42,16 @@ It can be applied to all expressions, as long as they have no side effects.
 
 The substitution model is formalized in the lambda calculus, which gives a foundation for functional programming.
 
+### Termination
+
+Does every expression reduce to a value (in a finite number of steps)?
+No.
+```scala
+def loop: Int = loop
+
+loop
+```
+
 ### Call-by-name and call-by-value
 
 Both strategies reduce to the same final value as long as
@@ -53,6 +63,8 @@ CBV has the advantage that every function argument is evaluated only once.
 CBN has the advantage that a function argument is not evaluated at all if the corresponding parameter is not used in the evaluation of the function's body.
 
 ### CBN, CBV and termination
+
+CBN and CBV evaluation strategies reduce an expression to the same value, as long as both evaluations terminate.
 
 We have:
 * If CBV evaluation of an expression *e* terminates, then CBN evaluation of *e* terminates too.
@@ -70,6 +82,8 @@ def constOne(x: Int, y: => Int) = x
 ### Conditional Expressions
 
 To express choosing between two alternatives, Scala has a conditional expression `if-else`.
+
+It looks like a `if-else` in Java, but is used for expressions, not statements.
 
 Example:
 ```scala
@@ -96,6 +110,8 @@ Recursive functions need an explicit return type in Scala.
 
 For non-recursive functions, the return type is optional.
 
+### Nested functions
+
 ### Blocks in Scala
 
 A block is delimited by curly braces.
@@ -103,6 +119,8 @@ A block is delimited by curly braces.
 The last statement of a block is an expression defines its value.
 
 Blocks are themselves expressions; a block may appear everywhere an expression can.
+
+### Blocks and Visibility
 
 The definitions inside a block are only visible from within the block.
 
@@ -144,7 +162,7 @@ Functions that take other functions as parameters or that return functions as re
 
 #### Function Types
 
-The type `A => B` is the type of a function that takes an argument of type A and returns a result of type B.
+The type `A => B` is the type of a *function* that takes an argument of type A and returns a result of type B.
 
 So, `Int => Int` is the type of functions that map integers to integers.
 
@@ -152,7 +170,6 @@ So, `Int => Int` is the type of functions that map integers to integers.
 
 Passing functions as parameters leads to the creation of many small functions.
 Sometimes it is tedious to have to define (and name) these functions using `def`.
-
 ```scala
 (x: Int, y: Int) => x + y
 ```
@@ -166,7 +183,7 @@ An anonymous function `(x1: T1, ..., xn: Tn) => E` can always be expressed using
 ```scala
 def f(x1: T1, ..., xn: Tn) = E; f
 ```
-where `f` is an arbitrary, fresh name(that's not ye used in the program).
+where `f` is an arbitrary, fresh name (that's not yet used in the program).
 One can therefore say that anonymous functions are `syntactic sugar`.
 
 ### Currying
@@ -200,6 +217,22 @@ def sum(f: Int => Int)(a: Int, b: Int): Int =
   if (a > b) 0 else f(a) + sum(f)(a + 1, b)
 ```
 
+### Expansion of Multiple Parameter Lists
+
+In general, a definition of a function with multiple parameter lists
+```scala
+def f(args1)...(argsn) = E
+```
+where `n>1`, is equivalent to
+```scala
+def f(args1)...(argsn-1) = {def g(argsn) = E; g}
+```
+where `g` is a fresh identifier.
+Or for short:
+```scala
+def f(args1)...(argsn-1) = (argsn => E)
+```
+
 ### Functions and Data
 
 #### Classes
@@ -224,11 +257,33 @@ On the inside of a class, the name `this` represents the object on which the cur
 In Scala, a class implicitly introduces a constructor.
 This one is called the *primary constructor* of the class.
 
+The primary constructor
+* takes the parameters of the class
+* and executes all statements in the class body
+
 The Scala compiler will compile any code you place in the class body, which isn't part of a field or a method definition, into the primary constructor.
 
 #### Auxiliary Constructors
 
 In Scala, constructors other than the primary constructor are called *auxiliary constructors*.
+
+Auxiliary constructors in Scala start with `def this(...)`.
+
+In Scala, every auxiliary constructor must invoke another constructor of the same class as its first action.
+In other words, the first statement in every auxiliary constructor in every Scala class will have the form `this(...)`.
+The invoked constructor is either the primary constructor, or another auxiliary constructor that comes textually before the calling constructor.
+
+#### Infix Notation
+
+Any method with a parameter can be used like an infix operator.
+
+#### Relaxed Identifiers
+
+Operators can be used as identifiers.
+
+#### Precedence Rules
+
+The *precedence* of an operator is determined by its first character.
 
 ## Week 3
 
@@ -244,9 +299,21 @@ In Scala, any user-defined class extends another class.
 
 If no superclass is given, the standard class `Object` in the Java package `java.lang` is assumed.
 
+For methods that implement definitions in base classes the `override` is optional.
+
+### Object Definitions
+
+In terms of evaluation, singleton objects are values.
+
 ### Programs
 
 It is possible to create standalone applications in Scala.
+
+### Dynamic Binding
+
+Object-oriented programming languages (including Scala) implement *dynamic method dispatch*.
+
+This means that the code invoked by a method call depends on the runtime type of the object that contains the method.
 
 Each such application contains an object with a `main` method.
 
@@ -311,7 +378,7 @@ Alias of `java.lang.Object`.
 
 * `scala.Nothing`
 
-**Nothing** is a subtype of every other type (including scala.Null); there exist *no instances* of this type.
+**Nothing** is a subtype of every other type (including `scala.Null`); there exist *no instances* of this type.
 
 * `scala.Null`
 
@@ -323,13 +390,17 @@ Alias of `java.lang.Object`.
 
 Type parameters are written in square brackets.
 
+### Generic Functions
+
+Like classes, functions can have type parameters.
+
 ### Types and Evaluation
 
 Type parameters do not affect evaluation in Scala.
 
 We can assume that all type parameters and type arguments are removed before evaluating the program.
 
-This is also called `type erasure`.
+This is also called *type erasure*.
 
 ### Polymorphism
 
@@ -350,6 +421,11 @@ We have seen two principal forms of polymorphism:
 A pure object-orientated language is one in which every value is an object.
 
 If the language is based on classes, this means that the type of each value is a class.
+
+### Standard Classes
+
+Conceptually, types such as `Int` or `Boolean` do not receive special treatment in Scala.
+They are like the other classes, defined in the package `scala`.
 
 ### Functions as Objects
 
@@ -408,6 +484,22 @@ f.apply(7)
 ```
 ### Functions and Methods
 
+Note that a method such as
+```scala
+def f(x: Int): Boolean = ...
+```
+is not itself a function value.
+
+But if `f` is used in a place where a `Function` type is expected, it is converted automatically to the function value:
+```scala
+(x: Int) => f(x)
+```
+or, expanded:
+```scala
+new Function1[Int, Boolean] {
+  def apply(x: Int) = f(x)
+}
+```
 This is called *eta expansion* in lambda calculus.
 
 ### Polymorphism
@@ -428,6 +520,11 @@ Generally, the notation
 
 #### Upper Bounds
 
+Consider the method `assertAllPos` which
+* takes an `IntSet`
+* returns the `IntSet` itself if all its elements are positive
+* throws an exception otherwise
+
 ```scala
 def assertAllPos[S <: IntSet](r: S): S = ...
 ```
@@ -436,6 +533,14 @@ Here, `<: IntSet` is an *upper bound* of the type parameter `S`.
 It means that `S` can be instantiated only to types that conform to the bound i.e. `IntSet`.
 
 #### Lower Bounds
+
+You can also use a lower bound for a type parameter.
+```scala
+[S >: NonEmpty]
+```
+introduces a type parameter `S` that can range only over *supertypes* of `NonEmpty`.
+
+So `S` could be one of `NonEmpty`, `IntSet`, `AnyRef`, or `Any`.
 
 #### Mixed Bounds
 
@@ -473,7 +578,7 @@ trait Function1[-T, +U] {
 
 ### Variance Check
 
-### Making Classes Covariant 
+### Making Classes Covariant
 
 ### Decomposition
 
