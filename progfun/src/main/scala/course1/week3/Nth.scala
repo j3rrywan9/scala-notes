@@ -1,4 +1,4 @@
-import course1.week3._
+package course1.week3
 
 object Nth extends App {
   /**

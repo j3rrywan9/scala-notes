@@ -1,6 +1,7 @@
 package course2.week3
 
 class Wire {
+  type Action = () => Unit
   private var sigVal = false
   private var actions: List[Action] = List()
 
