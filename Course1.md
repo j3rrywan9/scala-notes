@@ -548,6 +548,8 @@ Finally, it is also possible to mix a lower bound with an upper bound.
 
 ### Covariance
 
+We call types for which this relationship holds *covariant* because their subtyping relationship varies with the type parameter.
+
 ### Variance
 
 Roughly speaking, a type that accepts mutations of its elements should not be covariant.
@@ -576,7 +578,9 @@ trait Function1[-T, +U] {
 }
 ```
 
-### Variance Check
+### Variance Checks
+
+The Scala compiler will check that there are no problematic combinations when compiling a class with variance annotations.
 
 ### Making Classes Covariant
 
@@ -631,6 +635,10 @@ Patterns are constructed from:
 * wildcard patterns
 * constants
 
+Variables always begin with a lowercase letter.
+
+Names of constants begin with a capital letter, with the exception of the reserved words `null`, `true`, `false`.
+
 #### Evaluating Match Expressions
 
 The whole match expression is rewritten to the right-hand side of the first case where the pattern matches the selector.
@@ -655,8 +663,27 @@ All operations on lists can be expressed in terms of the following three operati
 #### List Patterns
 
 It is also possible to decompose lists with pattern matching.
+* `Nil` - The `Nil` constant
+* `p :: ps` - A pattern that matches a list with a `head` matching `p` and a `tail` matching `ps`
+* `List(p1, ..., pn)` - Same as `p1 :: ... :: pn :: Nil`
+
+## Week 5
 
 #### List Methods
+
+```scala
+xs.length
+xs.last
+xs.init
+xs take n
+xs drop n
+xs(n)
+xs ++ ys
+xs.reverse
+xs updated (n, x)
+xs indexOf x
+xs contains x
+```
 
 ### Pairs and Tuples
 
@@ -673,6 +700,15 @@ val (lable, value) = pair
 This works analogously for tuples with more than two elements.
 
 #### Translation of Tuples
+
+A tuple type `(T1, ..., Tn)` is an abbreviation of the parameterized type `scala.TupleN[T1, ..., Tn]`.
+
+#### The `Tuple` class
+
+Here, all `TupleN` classes are modeled after the following pattern:
+```scala
+
+```
 
 #### Parameterization with Ordered
 
@@ -730,12 +766,6 @@ This one has more evenly balanced access patterns than `List`.
 
 #### Operations on Vectors
 
-#### Collection Hierarchy
-
-A common base class of `List` and `Vector` is `Seq`, the class of all *sequences*.
-
-`Seq` itself is a subclass of `Iterable`.
-
 #### Ranges
 
 Another simple kind of sequence is the *range*.
@@ -782,11 +812,17 @@ We can extend the usage of higher order functions on sequences to many calculati
 
 #### for Expression
 
-### Sets
+#### Collection Hierarchy
+
+A common base class of `List` and `Vector` is `Seq`, the class of all *sequences*.
+
+`Seq` itself is a subclass of `Iterable`.
+
+#### Sets
 
 Sets are another basic abstraction in the Scala collections.
 
-### Sets vs Sequences
+#### Sets vs Sequences
 
 The principal differences between sets and sequences are:
 1. Sets are unordered; the elements of a set do not have a predefined order in which they appear in the set
@@ -838,8 +874,13 @@ def showCapital(country: String) = capitalOfCountry.get(country) match {
 	caes None => "missing data"
 }
 ```
+Options also support quite a few operations of the other collections.
 
 ### Sorted and GroupBy
+
+Two useful operations of SQL queries in addition to for expressions are `groupBy` and `orderBy`.
+
+`orderBy` on a collection can be expressed by `sortWith` and `sorted`.
 
 `groupBy` is available on Scala collections.
 It partitions a collection into a map of collections according to a *discriminator function* `f`.
