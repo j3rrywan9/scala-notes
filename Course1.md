@@ -25,6 +25,17 @@ If we want to implement high-level concepts following their mathematical theorie
 * In particular, functions can be values that are produced, consumed, and composed.
 * All this becomes easier in a functional language.
 
+### Functional Programming Languages
+
+* In a *restricted* sense, a functional programming language is one which does not have mutable variables, assignments, or imperative control structures.
+* In a *wider* sense, a functional programming language enables the construction of elegant programs that focus on functions.
+* In particular, functions in a functional programming language are first-class citizens.
+
+This means
+* they can be defined anywhere, including inside other functions
+* like any other value, they can be passed as parameters to functions and returned as results
+* as for other values, there exists a set of operators to compose functions
+
 ### Evaluation of Function Applications
 
 Applications of parameterized functions are evaluated in a similar way as operators:
