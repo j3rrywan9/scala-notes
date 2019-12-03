@@ -36,6 +36,14 @@ This means
 * like any other value, they can be passed as parameters to functions and returned as results
 * as for other values, there exists a set of operators to compose functions
 
+### Parameter and Return Types
+
+Function parameters come with their type, which is given after a colon.
+
+If a return type is given, it follows the parameter list.
+
+Primitive types are as in Java, but are written capitalized.
+
 ### Evaluation of Function Applications
 
 Applications of parameterized functions are evaluated in a similar way as operators:
@@ -53,10 +61,13 @@ It can be applied to all expressions, as long as they have no side effects.
 
 The substitution model is formalized in the lambda calculus, which gives a foundation for functional programming.
 
+So one of the motivations for ruling out side effects in functional programming is that we can keep to the simple model of evaluation.
+
 ### Termination
 
+Once we have the substitution model, another question comes up.
 Does every expression reduce to a value (in a finite number of steps)?
-No.
+In fact, the answer is no.
 ```scala
 def loop: Int = loop
 
@@ -85,7 +96,7 @@ We have:
 
 Scala normally uses call-by-value.
 
-But if the type of a function parameter starts with `=>` it uses call-by-name.
+But if the type of a function parameter starts with `=>`, it uses call-by-name.
 ```scala
 def constOne(x: Int, y: => Int) = x
 ```
@@ -100,10 +111,15 @@ Example:
 ```scala
 def abs(x: Int) = if (x > 0) x else -x
 ```
+What you see here is that the `if-else` is actually an expression.
+It's not a statement where you have to set a variable and then return a variable.
+It's an expression.
 
 ### Rewrite rules for Booleans
 
 ### Value Definitions
+
+We have seen that function parameters can be passed by value or by name and in fact the same distinction applies to definition.
 
 The `def` form is "by-name", its right hand side is evaluated on each use.
 
