@@ -1,7 +1,6 @@
 # sbt
 target/
-project/boot/
-project/plugins/project/
+project/
 
 # IntelliJ IDEA
 .idea/
