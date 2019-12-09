@@ -139,19 +139,24 @@ For non-recursive functions, the return type is optional.
 
 ### Nested functions
 
+It's good functional programming style to split up a task into many small functions.
+
 ### Blocks in Scala
 
-A block is delimited by curly braces.
-
-The last statement of a block is an expression defines its value.
-
-Blocks are themselves expressions; a block may appear everywhere an expression can.
+* A block is delimited by curly braces.
+* It contains a sequence of definitions or expressions.
+* The last statement of a block is an expression defines its value.
+* This return expression can be preceded by auxiliary definitions.
+* Blocks are themselves expressions; a block may appear everywhere an expression can.
 
 ### Blocks and Visibility
 
-The definitions inside a block are only visible from within the block.
+* The definitions inside a block are only visible from within the block.
+* The definitions inside a block *shadow* definitions of the same names outside the block.
 
-The definitions inside a block *shadow* definitions of the same names outside the block.
+### Lexical Scoping
+
+Definitions of outer blocks are visible inside a block unless they are shadowed.
 
 ### Semicolons
 
@@ -177,13 +182,20 @@ def factorial(n: Int): Int =
 If a function calls itself as its last action, the function's stack frame can be reused.
 This is called *tail recursion*.
 
+In general, if the last action of a function consists of calling a function (which may be the same), one stack frame would be sufficient for both functions.
+Such calls are called *tail-calls*.
+
+### Tail Recursion in Scala
+
+In Scala, only directly recursive calls to the current function are optimized.
+
 ## Week 2
 
 ### Higher Order Functions
 
 Functional languages treat functions as *first-class values*.
 
-Like any other value, a function can be passed as a parameter and returned as a result.
+This means that, like any other value, a function can be passed as a parameter and returned as a result.
 
 Functions that take other functions as parameters or that return functions as results are called *higher order functions*.
 
@@ -196,13 +208,26 @@ So, `Int => Int` is the type of functions that map integers to integers.
 #### Anonymous Functions
 
 Passing functions as parameters leads to the creation of many small functions.
+
 Sometimes it is tedious to have to define (and name) these functions using `def`.
+
+Since functions are important in our language, it makes sense to think of introducing literals for functions as well, and that's what we do next.
+These literals are called *anonymous functions*, because they do not have a name.
+
+#### Anonymous Function Syntax
+
+Example: A function that raises its argument to a cube:
+```scala
+(x: Int) => x * x * x
+```
+Here, `(x: Int)` is the *parameter* of the function, and `x * x * x` is it's *body*.
+
+The type of the parameter can be omitted if it can be inferred by the compiler from the context.
+
+If there are several parameters, they are separated by commas:
 ```scala
 (x: Int, y: Int) => x + y
 ```
-The type of the parameter can be omitted if it can be inferred by the compiler from the context.
-
-If there are several parameters, they are separated by commas.
 
 #### Anonymous Functions are Syntactic Sugar
 
@@ -211,7 +236,7 @@ An anonymous function `(x1: T1, ..., xn: Tn) => E` can always be expressed using
 def f(x1: T1, ..., xn: Tn) = E; f
 ```
 where `f` is an arbitrary, fresh name (that's not yet used in the program).
-One can therefore say that anonymous functions are `syntactic sugar`.
+One can therefore say that anonymous functions are *syntactic sugar*.
 
 ### Currying
 
