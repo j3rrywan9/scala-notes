@@ -23,19 +23,19 @@ class Rational(n: Int, d: Int) {
   val numer = n / g
   val denom = d / g
 
-  def add(that: Rational) =
+  def add(that: Rational): Rational =
     new Rational(numer * that.denom + that.numer * denom, denom * that.denom)
 
-  def less(that: Rational) =
+  def less(that: Rational): Boolean =
     this.numer * that.denom < that.numer * this.denom
 
-  def max(that: Rational) =
+  def max(that: Rational): Rational =
     if (this.less(that)) that else this
 
   def neg: Rational =
     new Rational(-numer, denom)
 
-  def sub(that: Rational) =
+  def sub(that: Rational): Rational =
     add(that.neg)
 
   override def toString = numer + "/" + denom
