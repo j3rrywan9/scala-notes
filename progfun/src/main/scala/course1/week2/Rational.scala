@@ -41,11 +41,13 @@ class Rational(n: Int, d: Int) {
   override def toString = numer + "/" + denom
 }
 
-val x = new Rational(1, 3)
-val y = new Rational(5, 7)
+object Rational extends App {
+  val x = new Rational(1, 3)
+  val y = new Rational(5, 7)
 
-y.add(y)
-x.neg
-x.sub(y)
-x.less(y)
-x.max(y)
+  println(y.add(y))
+  println(x.neg)
+  println(x.sub(y))
+  println(x.less(y))
+  println(x.max(y))
+}
