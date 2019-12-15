@@ -245,6 +245,8 @@ When a function is called with a fewer number of parameter lists, then this will
 
 Currying transforms a function that takes multiple parameter lists into a chain of functions, each taking a single parameter.
 
+#### Consecutive Stepwise Applications
+
 Generally, function application associates to the left:
 ```scala
 def cube(x: Int): Int = x * x * x
@@ -271,6 +273,8 @@ def sum(f: Int => Int)(a: Int, b: Int): Int =
 
 ### Expansion of Multiple Parameter Lists
 
+Functions with multiple parameter lists are syntax sugar.
+
 In general, a definition of a function with multiple parameter lists
 ```scala
 def f(args1)...(argsn) = E
@@ -287,6 +291,8 @@ def f(args1)...(argsn-1) = (argsn => E)
 
 ### Functions and Data
 
+In this section, we'll learn how functions create and encapsulate data structures.
+
 #### Classes
 
 #### Objects
@@ -294,6 +300,8 @@ def f(args1)...(argsn-1) = (argsn => E)
 We call the elements of a class type *objects*.
 
 We create an object by prefixing an application of the constructor of the class with the operator `new`.
+
+#### Members of an Object
 
 #### Methods
 
@@ -325,11 +333,26 @@ In Scala, every auxiliary constructor must invoke another constructor of the sam
 In other words, the first statement in every auxiliary constructor in every Scala class will have the form `this(...)`.
 The invoked constructor is either the primary constructor, or another auxiliary constructor that comes textually before the calling constructor.
 
-#### Infix Notation
+### Evaluation and Operators
+
+#### Classes and Substitutions
+
+How is an instantiation of the class `new C(e1, ..., em)` evaluated?
+
+The expression arguments `e1, ..., em` are evaluated like the arguments of a normal function.
+That's it.
+
+The resulting expression, say, `new C(e1, ..., em)` is already a value.
+
+#### Operators
+
+##### Infix Notation
 
 Any method with a parameter can be used like an infix operator.
 
-#### Relaxed Identifiers
+It is therefore possible to write `r add s` in place of `r.add(s)`.
+
+##### Relaxed Identifiers
 
 Operators can be used as identifiers.
 
