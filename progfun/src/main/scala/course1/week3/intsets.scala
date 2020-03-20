@@ -57,5 +57,7 @@ class NonEmpty(elem: Int, left: IntSet, right: IntSet) extends IntSet {
   override def toString = "{" + left + elem + right + "}"
 }
 
-val t1 = new NonEmpty(3, Empty, Empty)
-val t2 = t1 incl 4
+object IntSets extends App {
+  val t1 = new NonEmpty(3, Empty, Empty)
+  val t2 = t1 incl 4
+}
