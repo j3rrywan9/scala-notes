@@ -362,29 +362,42 @@ The *precedence* of an operator is determined by its first character.
 
 ## Week 3
 
-### Abstract Classes
+### Class Hierarchies
+
+#### Abstract Classes
 
 Abstract classes can contain members which are missing an implementation.
 
 Consequently, no instances of an abstract class can be created with the operator `new`.
 
-### Base Classes and Subclasses
+#### Class Extensions
+
+#### Base Classes and Subclasses 
 
 In Scala, any user-defined class extends another class.
 
 If no superclass is given, the standard class `Object` in the Java package `java.lang` is assumed.
 
+The direct or indirect superclasses of a class `C` are called *base classes* of `C`.
+
+#### Implementation and Overriding
+
+It is also possible to *redefine* an existing, non-abstract definition in a subclass by using `override`.
+
 For methods that implement definitions in base classes the `override` is optional.
 
-### Object Definitions
+#### Object Definitions
+
+So this object definition is exactly the same as the class definition, except that instead of the keyword `class`, you use `object`.
 
 In terms of evaluation, singleton objects are values.
 
-### Programs
+#### Programs
 
 It is possible to create standalone applications in Scala.
+Each such application would contain an object and that object contains a `main` method.
 
-### Dynamic Binding
+#### Dynamic Binding
 
 Object-oriented programming languages (including Scala) implement *dynamic method dispatch*.
 
@@ -392,11 +405,13 @@ This means that the code invoked by a method call depends on the runtime type of
 
 Each such application contains an object with a `main` method.
 
-### Packages
+### How Classes Are Organized
+
+#### Packages
 
 Classes and objects are organized in packages.
 
-To place a class or object inside a package, use a package clause at the top of your source file.
+To place a class or object inside a package, use a `package` clause at the top of your source file.
 
 ### Forms of Imports
 
