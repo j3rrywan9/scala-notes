@@ -1,7 +1,5 @@
 package course1.week3
 
-import java.util.NoSuchElementException
-
 trait List[T] {
   def isEmpty: Boolean
   def head: T
