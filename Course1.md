@@ -420,13 +420,13 @@ import week3.Rational
 import week3.{Rational, Hello}
 import week3._
 ```
-The first two forms are called `named imports`.
+The first two forms are called *named imports*.
 
-The last form is called a `wildcard import`.
+The last form is called a *wildcard import*.
 
 You can import from either a package or an object.
 
-### Automatic Imports
+#### Automatic Imports
 
 Some entities are automatically imported in any Scala program.
 
@@ -435,7 +435,9 @@ These are:
 * All members of package `java.lang`
 * All members of the singleton object `scala.Predef`
 
-### Traits
+#### Scaladoc
+
+#### Traits
 
 In Java, as well as in Scala, a class can only have one superclass.
 
@@ -444,13 +446,14 @@ A trait is declared like an abstract class, just with `trait` instead of `abstra
 Classes, objects and traits can inherit from at most one class but arbitrary many traits.
 
 Traits resemble interfaces in Java, but are more powerful because they can contain fields and concrete methods.
+On the other hand, traits cannot have (value) parameters,l only classes can.
 
 Once a trait is defined, it can be *mixed in* to a class using either the `extends` or `with` keyword.
 
 If you wish to mix a trait into a class that explicitly extends a superclass, you use `extends` to indicate the superclass and `with` to mix in the trait.
 If you want to mix in multiple traits, you add more `with` clauses.
 
-### Scala's Class Hierarchy
+#### Scala's Class Hierarchy
 
 * `scala.Any`
 
@@ -468,23 +471,49 @@ Alias of `java.lang.Object`.
 
 * `scala.Nothing`
 
+`Nothing` is at the bottom of Scala's type hierarchy.
 **Nothing** is a subtype of every other type (including `scala.Null`); there exist *no instances* of this type.
 
 * `scala.Null`
 
 **Null** is a subtype of all reference types; its only instance is the **null** reference.
 
-### Value Parameters
+### Polymorphism
 
-### Type Parameters
+#### Value Parameters
 
-Type parameters are written in square brackets.
+#### Type Parameters
 
-### Generic Functions
+We can generalize the definition using a type parameter.
+
+Type parameters are written in square brackets, e.g. `[T]`.
+
+#### Generic Functions
 
 Like classes, functions can have type parameters.
 
-### Types and Evaluation
+For instance, here is a function that creates a list consisting of a single element.
+```scala
+def singleton[T](elem: T) = new Cons[T](elem, new Nil[T])
+```
+We can then write:
+```scala
+singleton[Int](1)
+singleton[Boolean](true)
+```
+
+#### Type Inference
+
+In fact, the Scala compiler can usually deduce the correct type parameters from the value arguments of a function call.
+
+So, in most cases, type parameters can be left out.
+You could also write:
+```scala
+singleton(1)
+singleton(true)
+```
+
+#### Types and Evaluation
 
 Type parameters do not affect evaluation in Scala.
 
