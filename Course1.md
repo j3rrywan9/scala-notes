@@ -535,20 +535,26 @@ We have seen two principal forms of polymorphism:
 
 ## Week 4
 
-### Pure Object Orientation
+### Objects Everywhere
+
+#### Pure Object Orientation
 
 A pure object-orientated language is one in which every value is an object.
 
 If the language is based on classes, this means that the type of each value is a class.
 
-### Standard Classes
+#### Standard Classes
 
 Conceptually, types such as `Int` or `Boolean` do not receive special treatment in Scala.
 They are like the other classes, defined in the package `scala`.
 
+#### Pure Booleans
+
+The `Boolean` type maps to the JVM's primitive type `boolean`.
+
 ### Functions as Objects
 
-In fact function values are treated as objects in Scala.
+In fact function values *are* treated as objects in Scala.
 
 The function type `A => B` is just an abbreviation for the class `scala.Function1[A, B]`, which is roughly defined as follows:
 ```scala
@@ -562,7 +568,7 @@ So functions are objects with `apply` method.
 
 There are also traits `Function2`, `Function3`, ... for functions which take more arguments (currently up to 22).
 
-### Expansion of Function Values
+#### Expansion of Function Values
 
 An anonymous function such as
 ```scala
@@ -583,7 +589,7 @@ new Function1[Int, Int] {
 }
 ```
 
-### Expansion of Function Calls
+#### Expansion of Function Calls
 
 A function call, such as `f(a, b)`, is expanded to
 ```scala
@@ -601,7 +607,8 @@ val f = new Function1[Int, Int] {
 }
 f.apply(7)
 ```
-### Functions and Methods
+
+#### Functions and Methods
 
 Note that a method such as
 ```scala
@@ -621,23 +628,27 @@ new Function1[Int, Boolean] {
 ```
 This is called *eta expansion* in lambda calculus.
 
-### Polymorphism
+### Subtying and Generics
+
+#### Polymorphism
 
 Two principal forms of polymorphism:
 * subtyping
 * generics
 
-Interactions between the two concepts:
+In this section we will look at their interactions.
+
+Two main areas:
 * bounds
 * variance
 
-### Type Bounds
+#### Type Bounds
 
 Generally, the notation
 * `S <: T` means: `S` is a subtype of `T`, and
 * `S >: T` means: `S` is a supertype of `T`
 
-#### Upper Bounds
+##### Upper Bounds
 
 Consider the method `assertAllPos` which
 * takes an `IntSet`
@@ -651,7 +662,7 @@ Here, `<: IntSet` is an *upper bound* of the type parameter `S`.
 
 It means that `S` can be instantiated only to types that conform to the bound i.e. `IntSet`.
 
-#### Lower Bounds
+##### Lower Bounds
 
 You can also use a lower bound for a type parameter.
 ```scala
@@ -661,13 +672,27 @@ introduces a type parameter `S` that can range only over *supertypes* of `NonEmp
 
 So `S` could be one of `NonEmpty`, `IntSet`, `AnyRef`, or `Any`.
 
-#### Mixed Bounds
+##### Mixed Bounds
 
 Finally, it is also possible to mix a lower bound with an upper bound.
 
-### Covariance
+#### Covariance
+
+There's another interaction between subtyping and type parameters we need to consider.
+Given:
+```scala
+NonEmpty <: IntSet
+```
+is
+```scala
+List[NonEmpty] <: List[IntSet] ?
+```
+Intuitively, this makes sense.
+A list of non-empty sets is a special case of a list of arbitrary sets.
 
 We call types for which this relationship holds *covariant* because their subtyping relationship varies with the type parameter.
+
+#### The Liskov Substitution Principle
 
 ### Variance
 
@@ -675,7 +700,14 @@ Roughly speaking, a type that accepts mutations of its elements should not be co
 
 But immutable types can be covariant, if some conditions on methods are met.
 
-### Definition of Variance
+#### Definition of Variance
+
+Say `C[T]` is a parameterized type and `A`, `B` are types such that `A <: B`.
+
+I general, there are *three* possible relationships between `C[A]` and `C[B]`:
+* `C[A] <: C[B]`
+* `C[A] >: C[B]`
+* neither `C[A]` nor `C[B]` is a subtype of the other
 
 Scala lets you declare the variance of a type by annotating the type parameter:
 ```scala
@@ -686,7 +718,9 @@ class C[-T] { ... }  // C is contravariant
 class C[T] { ... }  // C is nonvariant
 ```
 
-### Function Trait Declaration
+#### Typing Rules for Functions
+
+#### Function Trait Declaration
 
 So functions are *contravariant* in their argument type(s) and *covariant* in their result type.
 
@@ -697,11 +731,15 @@ trait Function1[-T, +U] {
 }
 ```
 
-### Variance Checks
+#### Variance Checks
 
 The Scala compiler will check that there are no problematic combinations when compiling a class with variance annotations.
 
-### Making Classes Covariant
+#### Variance and Lists
+
+#### Making Classes Covariant
+
+#### Lower Bounds
 
 ### Decomposition
 
