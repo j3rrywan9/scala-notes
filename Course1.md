@@ -743,6 +743,8 @@ The Scala compiler will check that there are no problematic combinations when co
 
 ### Decomposition
 
+#### Non-Solution: Type Tests and Type Casts
+
 Scala lets you do type tests and type casts using methods defined in class `Any`:
 ```scala
 def isInstanceOf[T]: Boolean
@@ -752,6 +754,15 @@ These correspond to Java's type tests and casts.
 But their use in Scala is discouraged, because there are better alternatives.
 
 ### Pattern Matching
+
+#### Functional Decomposition with Pattern Matching
+
+Observation: the sole purpose of test and accessor functions is to *reverse* the construction process:
+* Which subclass was used?
+* What were the arguments of the constructor?
+
+This situation is so common that many functional languages, Scala included, automate it.
+And the technical term of this automated solution is *pattern matching*.
 
 #### Case Classes
 
@@ -801,6 +812,12 @@ Names of constants begin with a capital letter, with the exception of the reserv
 The whole match expression is rewritten to the right-hand side of the first case where the pattern matches the selector.
 
 References to pattern variables are replaced by the corresponding parts in the selector.
+
+#### What Do Patterns Match?
+
+* A constructor pattern `C(p1, ..., pn)` matches all the values of type `C`(or a subtype) that have been constructed with arguments matching the patterns `p1, ..., pn`.
+* A variable pattern `x` matches any value, and *binds* the name of the variable to this value.
+* A constant pattern `c` matches values that are equal to `c` (in the sense of `==`).
 
 ### Lists
 
