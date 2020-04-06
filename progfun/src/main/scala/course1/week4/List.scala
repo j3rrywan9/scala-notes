@@ -1,7 +1,5 @@
 package course1.week4
 
-import java.util.NoSuchElementException
-
 trait List[+T] {
   def isEmpty: Boolean
   def head: T
@@ -19,12 +17,18 @@ object Nil extends List[Nothing] {
   def tail: Nothing = throw new NoSuchElementException("Nil.tail")
 }
 
-object test {
+object List {
   // List(1, 2) = List.apply(1, 2)
   def apply[T](x1: T, x2: T): List[T] = new Cons(x1, new Cons(x2, Nil))
+
   // List() = List.apply()
   def apply[T]() = Nil
+}
+
+object ListDemo extends App {
   // List must be covariant
   val x: List[String] = Nil
+
+  // Return type is List[IntSet]
   def f(xs: List[NonEmpty], x: Empty) = xs prepend x
 }
