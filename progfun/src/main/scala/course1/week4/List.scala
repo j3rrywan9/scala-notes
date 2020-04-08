@@ -22,7 +22,7 @@ object List {
   def apply[T](x1: T, x2: T): List[T] = new Cons(x1, new Cons(x2, Nil))
 
   // List() = List.apply()
-  def apply[T]() = Nil
+  def apply[T](): Nil.type = Nil
 }
 
 object ListDemo extends App {
