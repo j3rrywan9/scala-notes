@@ -628,7 +628,7 @@ new Function1[Int, Boolean] {
 ```
 This is called *eta expansion* in lambda calculus.
 
-### Subtying and Generics
+### Subtyping and Generics
 
 #### Polymorphism
 
@@ -821,11 +821,30 @@ References to pattern variables are replaced by the corresponding parts in the s
 
 ### Lists
 
-#### The List Type
+The list is a functional data structure in functional programming.
+
+There are two important differences between lists and arrays.
+* Lists are immutable - the elements of a list cannot be changed.
+* Lists are recursive, while arrays are flat.
+
+#### The `List` Type
 
 Like arrays, lists are **homogeneous**: the elements of a list must all have the same type.
 
 The type of a list that has elements of type `T` is written `List[T]`.
+
+#### Constructors of Lists
+
+All lists are constructed from:
+* the empty list `Nil`, and
+* the construction operation `::` (pronounced *cons*):
+`x :: xs` gives a new list with the first element `x`, followed by the elements of `xs`.
+
+#### Right Associativity
+
+Convention: Operators ending in ":" associate to the right.
+
+Operators ending in ":" are also different as they are seen as method calls of the *right-hand* operand.
 
 #### Operations on Lists
 
