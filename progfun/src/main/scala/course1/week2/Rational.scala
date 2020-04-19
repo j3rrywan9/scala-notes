@@ -1,3 +1,5 @@
+package course1.week2
+
 class Rational(n: Int, d: Int) {
   /** Precondition */
   require(d != 0, "denominator must be non-zero")
