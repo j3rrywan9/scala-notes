@@ -6,7 +6,39 @@
 
 ### Directory structure
 
+#### Base directory
+
+In sbt's terminology, the "base directory" is the directory containing the project.
+
+#### Source code
+
+#### sbt build definition files
+
+The build definition is described in `build.sbt` (actually any files named `*.sbt`) in the project's base directory.
+
+#### Build support files
+
+In addition to `build.sbt`, project directory can contain `.scala` files that defines helper objects and one-off plugins.
+
+#### Build products
+
+Generated files (compiled classes, packaged jars, managed files, caches, and documentation) will be written to the `target` directory by default.
+
 ### Running
+
+#### sbt shell
+
+Run sbt in your project directory with no arguments:
+```bash
+$ sbt
+```
+Running sbt with no command line arguments starts sbt shell.
+sbt shell has a command prompt (with tab completion and history!).
+
+#### Batch mode
+
+You can also run sbt in batch mode, specifying a space-separated list of sbt commands as arguments.
+For sbt commands that take arguments, pass the command and arguments as one argument to sbt by enclosing them in quotes.
 
 ### Build definition
 
@@ -53,6 +85,9 @@ There are three flavors of key:
 Check out Input Tasks for more details.
 
 ##### Built-in Keys
+
+The built-in keys are just fields in an object called `Keys`.
+A `build.sbt` implicitly has an import `sbt.Keys._`, so `sbt.Keys.name` can be referred to as `name`.
 
 ##### Custom Keys
 
@@ -158,6 +193,8 @@ This also creates an ordering between the projects when compiling them;
 `util` must be updated and compiled before `core` can be compiled.
 
 To depend on multiple projects, use multiple arguments to `dependsOn`, like `dependsOn(bar, baz)`.
+
+#### Inter-project dependencies
 
 #### Default root project
 
