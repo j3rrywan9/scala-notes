@@ -239,3 +239,125 @@ The value is calculated each time it is invoked.
 
 In `build.sbt` DSL, we use `.value` method to express the dependency to another task or setting.
 The `value` method is special and may only be called in the argument to `:=` (or, `+=` or `++=`, which we'll see later).
+
+### Scopes
+
+#### The whole story about keys
+
+In truth, each key can have an associated value in more than one context, called a *scope*.
+
+*There is no single value for a given key*, because the value may differ according to scope.
+
+However, there is a single value for a given *scoped* key.
+
+If you think about sbt processing a list of settings to generate a key-value map describing the project, as discussed earlier, the keys in that key-value map are *scoped* keys.
+Each setting defined in the build definition (for example in `build.sbt`) applies to a scoped key as well.
+
+Often the scope is implied or has a default, but if the defaults are wrong, you'll need to mention the desired scope in `build.sbt`.
+
+#### Scope axes
+
+A *scope axis* is a type constructor similar to `Option[A]`, that is used to form a component in a scope.
+
+There are three scope axes:
+* The subproject axis
+* The dependency configuration axis
+* The task axis
+
+Similarly, a full scope in sbt is formed by a **tuple** of a subproject, a configuration, and a task value:
+```sbt
+projA / Compile / console / scalacOptions
+```
+
+##### Scoping by the subproject axis
+
+If you put multiple projects in a single build, each project needs its own settings.
+That is, keys can be scoped according to the project.
+
+The project axis can also be set to `ThisBuild`, which means the "entire build", so a setting applies to the entire build rather than a single project.
+Build-level settings are often used as a fallback when a project doesn't define a project-specific setting.
+We will discuss more on build-level settings later in this page.
+
+##### Scoping by the configuration axis
+
+A *dependency configuration* (or "configuration" for short) defines a graph of library dependencies, potentially with its own classpath, sources, generated packages, etc.
+The dependency configuration concept comes from Ivy, which sbt used to use for managed dependencies Library Dependencies, and from MavenScopes.
+
+Some configurations you'll see in sbt:
+* `Compile` which defines the main build (`src/main/scala`).
+* `Test` which defines how to build tests (`src/test/scala`).
+* `Runtime` which defines the classpath for the `run` task.
+
+By default, all the keys associated with compiling, packaging, and running are scoped to a configuration and therefore may work differently in each configuration.
+The most obvious examples are the task keys `compile`, `package`, and `run`;
+but all the keys which affect those keys (such as `sourceDirectories` or `scalacOptions` or `fullClasspath`) are also scoped to the configuration.
+
+##### Scoping by Task axis 
+
+Settings can affect how a task works.
+For example, the `packageSrc` task is affected by the `packageOptions` setting.
+
+To support this, a task key (such as `packageSrc`) can be a scope for another key (such as `packageOptions`).
+
+The various tasks that build a package (`packageSrc`, `packageBin`, `packageDoc`) can share keys related to packaging, such as `artifactName` and `packageOptions`.
+Those keys can have distinct values for each packaging task.
+
+##### Zero scope component
+
+Each scope axis can be filled in with an instance of the axis type (analogous to `Some(_)`), or the axis can be filled in with the special value `Zero`.
+So we can think of `Zero` as `None`.
+
+`Zero` is a universal fallback for all scope axes, but its direct use should be reserved to sbt and plugin authors in most cases.
+
+`Global` is a scope that sets `Zero` to all axes: `Zero` / `Zero` / `Zero`.
+In other words, `Global / someKey` is a shorthand for `Zero / Zero / Zero / someKey`.
+
+#### Referring to scopes in a build definition
+
+If you create a setting in `build.sbt` with a bare key, it will be scoped to (current subproject / configuration `Zero` / task `Zero`):
+
+#### Referring to scoped keys from the sbt shell 
+
+On the command line and in the sbt shell, sbt displays (and parses) scoped keys like this:
+```sbt
+ref / Config / intask / key
+```
+* `ref` identifies the subproject axis. It could be <project-id>, ProjectRef(uri("file:..."), "id"), or `ThisBuild` that denotes the "entire build" scope.
+* `Config` identifies the configuration axis using the capitalized Scala identifier.
+* `intask` identifies the task axis.
+* `key` identifies the key being scoped.
+
+`Zero` can appear for each axis.
+
+If you omit part of the scoped key, it will be inferred as follows:
+* the current project will be used if you omit the project.
+* a key-dependent configuration will be auto-detected if you omit the configuration or task.
+
+#### Inspecting scopes
+
+In sbt shell, you can use the `inspect` command to understand keys and their scopes.
+
+"Provided by" points you to the scoped key that defines the value, in this case `ProjectRef(uri("file:/tmp/hello/"), "root") / Test / fullClasspath` (which is the `fullClasspath` key scoped to the `Test` configuration and the `ProjectRef(uri("file:/tmp/hello/"), "root")` project).
+
+Try `inspect fullClasspath` (as opposed to the above example, `inspect Test / fullClasspath`) to get a sense of the difference.
+Because the configuration is omitted, it is autodetected as `Compile`.
+`inspect Compile / fullClasspath` should therefore look the same as `inspect fullClasspath`.
+
+#### Build-level settings
+
+An advanced technique for factoring out common settings across subprojects is to define the settings scoped to `ThisBuild`.
+
+If a key that is scoped to a particular subproject is not found, sbt will look for it in `ThisBuild` as a fallback.
+Using the mechanism, we can define a build-level default setting for frequently used keys such as `version`, `scalaVersion`, and `organization`.
+
+Due to the nature of scope delegation that we will cover later, build-level settings should be set only to a pure value or settings from either `Global` or `ThisBuild` scoping.
+
+#### Scope delegation
+
+A scoped key may be undefined, if it has no value associated with it in its scope.
+
+For each scope axis, sbt has a fallback search path made up of other scope values.
+Typically, if a key has no associated value in a more-specific scope, sbt will try to get a value from a more general scope, such as the `ThisBuild` scope.
+
+This feature allows you to set a value once in a more general scope, allowing multiple more-specific scopes to inherit the value.
+We will discuss scope delegation in detail later.
