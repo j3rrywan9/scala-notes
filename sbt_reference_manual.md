@@ -361,3 +361,153 @@ Typically, if a key has no associated value in a more-specific scope, sbt will t
 
 This feature allows you to set a value once in a more general scope, allowing multiple more-specific scopes to inherit the value.
 We will discuss scope delegation in detail later.
+
+### Appending values
+
+#### Appending to previous values: `+=` and `++=`
+
+Assignment with `:=` is the simplest transformation, but keys have other methods as well.
+If the `T` in `SettingKey[T]` is a sequence, i.e. the key's value type is a sequence, you can append to the sequence rather than replacing it.
+* `+=` will append a single element to the sequence.
+* `++=` will concatenate another sequence.
+
+For example, the key `Compile / sourceDirectories` has a `Seq[File]` as its value.
+By default this key's value would include src/main/scala.
+If you wanted to also compile source code in a directory called source (since you just have to be nonstandard), you could add that directory:
+```sbt
+Compile / sourceDirectories += new File("source")
+```
+Or, using the `file()` function from the sbt package for convenience:
+```sbt
+Compile / sourceDirectories += file("source")
+```
+(`file()` just creates a new `File`.)
+
+You could use `++=` to add more than one directory at a time:
+```sbt
+Compile / sourceDirectories ++= Seq(file("sources1"), file("sources2"))
+```
+Where `Seq(a, b, c, ...)` is standard Scala syntax to construct a sequence.
+
+To replace the default source directories entirely, you use `:=` of course:
+```sbt
+Compile / sourceDirectories := Seq(file("sources1"), file("sources2"))
+```
+
+#### When settings are undefined
+
+#### Tasks based on other keys' values
+
+#### Appending with dependencies: `+=` and `++=`
+
+### Scope delegation
+
+To summarize what we've learned so far:
+* A scope is a tuple of components in three axes: the subproject axis, the configuration axis, and the task axis.
+* There's a special scope component `Zero` for any of the scope axes.
+* There's a special scope component `ThisBuild` for the subprojects axis only.
+* `Test` extends `Runtime`, and `Runtime` extends `Compile` configuration.
+* A key placed in `build.sbt` is scoped to `${current subproject} / Zero / Zero` by default.
+* A key can be scoped using `/` operator.
+
+#### Scope delegation rules
+
+Here are the rules for scope delegation:
+* Rule 1: Scope axes have the following precedence: the subproject axis, the configuration axis, and then the task axis.
+* Rule 2: Given a scope, delegate scopes are searched by substituting the task axis in the following order: the given task scoping, and then `Zero`, which is non-task scoped version of the scope.
+* Rule 3: Given a scope, delegate scopes are searched by substituting the configuration axis in the following order: the given configuration, its parents, their parents and so on, and then `Zero` (same as unscoped configuration axis).
+* Rule 4: Given a scope, delegate scopes are searched by substituting the subproject axis in the following order: the given subproject, `ThisBuild`, and then `Zero`.
+* Rule 5: A delegated scoped key and its dependent settings/tasks are evaluated without carrying the original context.
+
+We will look at each rule in the rest of this page.
+
+#### `inspect` command lists the delegates
+
+You might want to look up quickly what is going on.
+This is where `inspect` can be used.
+
+### Library dependencies
+
+Library dependencies can be added in two ways:
+* *unmanaged dependencies* are jars dropped into the `lib` directory
+* *managed dependencies* are configured in the build definition and downloaded automatically from repositories
+
+#### Unmanaged dependencies
+
+#### Managed dependencies
+
+sbt uses Coursier to implement managed dependencies, so if you're familiar with Coursier, Apache Ivy or Maven, you won't have much trouble.
+
+##### The `libraryDependencies` key
+
+Most of the time, you can simply list your dependencies in the setting `libraryDependencies`.
+It's also possible to write a Maven POM file or Ivy configuration file to externally configure your dependencies, and have sbt use those external configuration files.
+
+Declaring a dependency looks like this, where `groupId`, `artifactId`, and `revision` are strings:
+```sbt
+libraryDependencies += groupID % artifactID % revision
+```
+or like this, where `configuration` can be a string or a `Configuration` value (such as `Test`):
+```sbt
+libraryDependencies += groupID % artifactID % revision % configuration
+```
+
+##### Getting the right Scala version with `%%`
+
+If you use `organization %% moduleName % version` rather than `organization % moduleName % version` (the difference is the double `%%` after the `organization`), sbt will add your project's binary Scala version to the artifact name.
+This is just a shortcut.
+You could write this without the `%%`:
+```sbt
+libraryDependencies += "org.scala-tools" % "scala-stm_2.11" % "0.3"
+```
+Assuming the scalaVersion for your build is 2.11.1, the following is identical (note the double `%%` after "`org.scala-tools`"):
+```sbt
+libraryDependencies += "org.scala-tools" %% "scala-stm" % "0.3"
+```
+The idea is that many dependencies are compiled for multiple Scala versions, and you'd like to get the one that matches your project to ensure binary compatibility.
+
+##### Resolvers
+
+Not all packages live on the same server;
+sbt uses the standard Maven2 repository by default.
+If your dependency isn't on one of the default repositories, you'll have to add a *resolver* to help Ivy find it.
+
+To add an additional repository, use
+```sbt
+resolvers += name at location
+```
+with the special `at` between two strings.
+
+### Using plugins
+
+A plugin extends the build definition, most commonly by adding new settings.
+The new settings could be new tasks.
+For example, a plugin could add a `codeCoverage` task which would generate a test coverage report.
+
+### Custom settings and tasks
+
+#### Defining a key
+
+### Organizing the build
+
+#### sbt is recursive
+
+`build.sbt` conceals how sbt really works.
+sbt builds are defined with Scala code.
+That code, itself, has to be built.
+What better way than with sbt?
+
+The `project` directory *is another build inside your build*, which knows how to build your build.
+To distinguish the builds, we sometimes use the term **proper build** to refer to your build, and **meta-build** to refer to the build in `project`.
+The projects inside the metabuild can do anything any other project can do.
+*Your build definition is an sbt project*.
+
+And the turtles go all the way down.
+If you like, you can tweak the build definition of the build definition project, by creating a `project/project/` directory.
+
+#### Tracking dependencies in one place
+
+One way of using the fact that `.scala` files under `project` becomes part of the build definition is to create `project/Dependencies.scala` to track dependencies in one place.
+
+The `Dependencies` object will be available in `build.sbt`.
+To make it easier to use the `val`s defined in it, import `Dependencies._` in your `build.sbt` file.
