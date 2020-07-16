@@ -40,7 +40,7 @@ class Rational(n: Int, d: Int) {
   def sub(that: Rational): Rational =
     add(that.neg)
 
-  override def toString = numer + "/" + denom
+  override def toString = s"$numer/$denom"
 }
 
 object Rational extends App {
