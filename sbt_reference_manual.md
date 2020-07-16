@@ -12,6 +12,21 @@ In sbt's terminology, the "base directory" is the directory containing the proje
 
 #### Source code
 
+sbt uses the same directory structure as Maven for source files by default (all paths are relative to the base directory):
+```
+src/
+    main/
+        resources/
+        scala/
+        scala-2.12/
+        java/
+    test/
+        resources
+        scala
+        scala-2.12/
+        java
+```
+
 #### sbt build definition files
 
 The build definition is described in `build.sbt` (actually any files named `*.sbt`) in the project's base directory.
@@ -19,6 +34,7 @@ The build definition is described in `build.sbt` (actually any files named `*.sb
 #### Build support files
 
 In addition to `build.sbt`, project directory can contain `.scala` files that defines helper objects and one-off plugins.
+See organizing the build for more.
 
 #### Build products
 
@@ -35,12 +51,42 @@ $ sbt
 Running sbt with no command line arguments starts sbt shell.
 sbt shell has a command prompt (with tab completion and history!).
 
+For example, you could type compile at the sbt shell:
+```sbt
+compile
+```
+To compile again, press up arrow and then enter.
+
+To run your program, type `run`.
+
+To leave sbt shell, type `exit` or use Ctrl+D (Unix) or Ctrl+Z (Windows).
+
 #### Batch mode
 
 You can also run sbt in batch mode, specifying a space-separated list of sbt commands as arguments.
 For sbt commands that take arguments, pass the command and arguments as one argument to sbt by enclosing them in quotes.
+For example,
+```bash
+sbt clean compile "testOnly TestA TestB"
+```
+In this example, `testOnly` has arguments, `TestA` and `TestB`.
+The commands will be run in sequence (`clean`, `compile`, then `testOnly`).
+
+#### Common Commands
+
+Here are some of the most common sbt commands.
+* clean
+* compile
+* test
+* console
+* run
+* package
+* help
+* reload
 
 ### Build definition
+
+This page describes sbt build definitions, including some "thoery" and the syntax of `build.sbt`.
 
 #### Specifying the sbt version
 
@@ -48,7 +94,7 @@ As part of your build definition you will specify the version of sbt that your b
 This allows people with different versions of the sbt launcher to build the same projects with consistent results.
 To do this, create a file named `project/build.properties` that specifies the sbt version as follows:
 ```sbt
-sbt.version = 1.3.10
+sbt.version = 1.3.13
 ```
 If the required version is not available locally, the sbt launcher will download it for you.
 
@@ -62,7 +108,16 @@ Each subproject is configured by key-value pairs.
 #### How `build.sbt` defines settings
 
 `build.sbt` defines subprojects, which holds a sequence of key-value pairs called *setting expressions* using *build.sbt DSL*.
+```sbt
+ThisBuild / organization := "com.example"
+ThisBuild / scalaVersion := "2.12.10"
+ThisBuild / version      := "0.1.0-SNAPSHOT"
 
+lazy val root = (project in file("."))
+  .settings(
+    name := "hello"
+  )
+```
 Each entry is called a *setting expression*. 
 Some among them are also called task expressions.
 
@@ -73,6 +128,10 @@ A setting expression consists of three parts:
 
 A key is an instance of `SettingKey[T]`, `TaskKey[T]`, or `InputKey[T]` where `T` is the expected value type.
 The kinds of key are explained below.
+
+build.sbt may also be interspersed with `val`s, `lazy val`s, and `def`s.
+Top-level `object`s and `class`es are not allowed in `build.sbt`.
+Those should go in the `project/` directory as Scala source files.
 
 #### Keys
 
@@ -103,6 +162,8 @@ A `TaskKey[T]` is said to define a *task*.
 Tasks are operations such as `compile` or `package`.
 They may return `Unit`, or they may return a value related to the task, for example `package` is a `TaskKey[File]` and its value is the jar file it creates.
 
+Each time you start a task execution, for example by typing `compile` at the interactive sbt prompt, sbt will re-run any tasks involved exactly once.
+
 #### Define tasks and settings
 
 Using `:=`, you can assign a value to a setting and a computation to a task.
@@ -123,11 +184,54 @@ The convention for keys names is to use `camelCase` so that the command line nam
 To learn more about any key, type `inspect <keyname>` at the sbt interactive prompt.
 Some of the information inspect displays won't make sense yet, but at the top it shows you the setting's value type and a brief description of the setting.
 
+#### Imports in build.sbt
+
+You can place import statements at the top of build.sbt;
+they need not be separated by blank lines.
+
+There are some implied default imports, as follows:
+```sbt
+import sbt._
+import Keys._
+```
+
 #### Bare .sbt build definition
+
+The settings can be written directly into the `build.sbt` file instead of putting them inside a `.settings(...)` call.
+We call this the "bare style".
+```sbt
+ThisBuild / version := "1.0"
+ThisBuild / scalaVersion := "2.12.10"
+```
+This syntax is recommended for `ThisBuild` scoped settings and adding plugins.
+See later section about the scoping and the plugins.
 
 #### Adding library dependencies
 
+To depend on third-party libraries, there are two options.
+The first is to drop jars in `lib/` (unmanaged dependencies) and the other is to add managed dependencies, which will look like this in `build.sbt`:
+```sbt
+val derby = "org.apache.derby" % "derby" % "10.4.1.3"
+
+ThisBuild / organization := "com.example"
+ThisBuild / scalaVersion := "2.12.10"
+ThisBuild / version      := "0.1.0-SNAPSHOT"
+
+lazy val root = (project in file("."))
+  .settings(
+    name := "Hello",
+    libraryDependencies += derby
+  )
+```
+This is how you add a managed dependency on the Apache Derby library, version 10.4.1.3.
+
+The `libraryDependencies` key involves two complexities: `+=` rather than `:=`, and the `%` method.
+`+=` appends to the key's old value rather than replacing it, this is explained in Task Graph.
+The `%` method is used to construct an Ivy module ID from strings, explained in Library dependencies.
+
 ### Multi-project builds
+
+This page introduces multiple subprojects in a single build.
 
 #### Multiple subprojects
 
@@ -154,6 +258,22 @@ lazy val core = project
 
 To factor out common settings across multiple projects, define the settings scoped to `ThisBuild`.
 The limitation is that the right-hand side needs to be a pure value or settings scoped to `Global` or `ThisBuild`, and there are no default settings scoped to subprojects.
+```sbt
+ThisBuild / organization := "com.example"
+ThisBuild / version      := "0.1.0-SNAPSHOT"
+ThisBuild / scalaVersion := "2.12.10"
+
+lazy val core = (project in file("core"))
+  .settings(
+    // other settings
+  )
+
+lazy val util = (project in file("util"))
+  .settings(
+    // other settings
+  )
+```
+Now we can bump up `version` in one place, and it will be reflected across subprojects when you reload the build.
 
 #### Common settings
 
@@ -188,13 +308,20 @@ For example, if `core` needed `util` on its classpath, you would define `core` a
 ```sbt
 lazy val core = project.dependsOn(util)
 ```
-Now code in core can use classes from `util`.
+Now code in `core` can use classes from `util`.
 This also creates an ordering between the projects when compiling them;
 `util` must be updated and compiled before `core` can be compiled.
 
 To depend on multiple projects, use multiple arguments to `dependsOn`, like `dependsOn(bar, baz)`.
 
 #### Inter-project dependencies
+
+On extremely large projects with many files and many subprojects, sbt can perform less optimally at continuously watching files that have changed and use a lot of disk and system I/O.
+
+sbt has `trackInternalDependencies` and `exportToInternal` settings.
+These can be used to control whether to trigger compilation of a dependent subprojects when you call compile.
+Both keys will take one of three values: `TrackLevel.NoTracking`, `TrackLevel.TrackIfMissing`, and `TrackLevel.TrackAlways`.
+By default they are both set to `TrackLevel.TrackAlways`.
 
 #### Default root project
 
@@ -209,6 +336,9 @@ So you don't necessarily have to compile the root project, you could compile onl
 You can run a task in another project by explicitly specifying the project ID, such as `subProjectID/compile`.
 
 #### Common code
+
+The definitions in `.sbt` files are not visible in other `.sbt` files.
+In order to share code between `.sbt` files, define one or more Scala files in the `project/` directory of the build root.
 
 #### Appendix: Subproject build definition files
 
@@ -239,6 +369,22 @@ The value is calculated each time it is invoked.
 
 In `build.sbt` DSL, we use `.value` method to express the dependency to another task or setting.
 The `value` method is special and may only be called in the argument to `:=` (or, `+=` or `++=`, which we'll see later).
+
+#### Inspecting the task
+
+This is how sbt knows which tasks depend on which other tasks.
+
+When you type `compile` sbt automatically performs an `update`, for example.
+It Just Works because the values required as inputs to the `compile` computation require sbt to do the `update` computation first.
+
+In this way, all build dependencies in sbt are *automatic* rather than explicitly declared.
+If you use a key's value in another computation, then the computation depends on that key.
+
+#### Defining a task that depends on other settings
+
+#### Defining a setting that depends on other settings
+
+In terms of the execution timing, we can think of the settings as a special tasks that evaluate during loading time.
 
 ### Scopes
 
@@ -292,6 +438,9 @@ By default, all the keys associated with compiling, packaging, and running are s
 The most obvious examples are the task keys `compile`, `package`, and `run`;
 but all the keys which affect those keys (such as `sourceDirectories` or `scalacOptions` or `fullClasspath`) are also scoped to the configuration.
 
+Another thing to note about a configuration is that it can extend other configurations.
+The following figure shows the extension relationship among the most common configurations.
+
 ##### Scoping by Task axis 
 
 Settings can affect how a task works.
@@ -315,6 +464,12 @@ In other words, `Global / someKey` is a shorthand for `Zero / Zero / Zero / some
 #### Referring to scopes in a build definition
 
 If you create a setting in `build.sbt` with a bare key, it will be scoped to (current subproject / configuration `Zero` / task `Zero`):
+```sbt
+lazy val root = (project in file("."))
+  .settings(
+    name := "hello"
+  )
+```
 
 #### Referring to scoped keys from the sbt shell 
 
@@ -322,7 +477,8 @@ On the command line and in the sbt shell, sbt displays (and parses) scoped keys 
 ```sbt
 ref / Config / intask / key
 ```
-* `ref` identifies the subproject axis. It could be <project-id>, ProjectRef(uri("file:..."), "id"), or `ThisBuild` that denotes the "entire build" scope.
+* `ref` identifies the subproject axis.
+It could be <project-id>, ProjectRef(uri("file:..."), "id"), or `ThisBuild` that denotes the "entire build" scope.
 * `Config` identifies the configuration axis using the capitalized Scala identifier.
 * `intask` identifies the task axis.
 * `key` identifies the key being scoped.
@@ -336,12 +492,35 @@ If you omit part of the scoped key, it will be inferred as follows:
 #### Inspecting scopes
 
 In sbt shell, you can use the `inspect` command to understand keys and their scopes.
+Try `inspect Test/fullClasspath`:
 
 "Provided by" points you to the scoped key that defines the value, in this case `ProjectRef(uri("file:/tmp/hello/"), "root") / Test / fullClasspath` (which is the `fullClasspath` key scoped to the `Test` configuration and the `ProjectRef(uri("file:/tmp/hello/"), "root")` project).
+
+"Dependencies" was discussed in detail in the previous page.
+
+We'll discuss "Delegates" later.
 
 Try `inspect fullClasspath` (as opposed to the above example, `inspect Test / fullClasspath`) to get a sense of the difference.
 Because the configuration is omitted, it is autodetected as `Compile`.
 `inspect Compile / fullClasspath` should therefore look the same as `inspect fullClasspath`.
+
+#### When to specify a scope 
+
+You need to specify the scope if the key in question is normally scoped.
+For example, the `compile` task, by default, is scoped to `Compile` and `Test` configurations, and does not exist outside of those scopes.
+
+To change the value associated with the `compile` key, you need to write `Compile / compile` or `Test / compile`.
+Using plain compile would define a new compile task scoped to the current project, rather than overriding the standard compile tasks which are scoped to a configuration.
+
+If you get an error like "Reference to undefined setting", often you've failed to specify a scope, or you've specified the wrong scope.
+The key you're using may be defined in some other scope.
+sbt will try to suggest what you meant as part of the error message;
+look for "Did you mean Compile / compile?"
+
+One way to think of it is that a name is only part of a key.
+In reality, all keys consist of both a name, and a scope (where the scope has three axes).
+The entire expression `Compile / packageBin / packageOptions` is a key name, in other words.
+Simply `packageOptions` is also a key name, but a different one (for keys with no slashes, a scope is implicitly assumed: current project, `Zero` config, `Zero` task).
 
 #### Build-level settings
 
