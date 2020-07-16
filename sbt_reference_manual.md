@@ -551,7 +551,7 @@ If the `T` in `SettingKey[T]` is a sequence, i.e. the key's value type is a sequ
 * `++=` will concatenate another sequence.
 
 For example, the key `Compile / sourceDirectories` has a `Seq[File]` as its value.
-By default this key's value would include src/main/scala.
+By default this key's value would include `src/main/scala`.
 If you wanted to also compile source code in a directory called source (since you just have to be nonstandard), you could add that directory:
 ```sbt
 Compile / sourceDirectories += new File("source")
@@ -575,19 +575,30 @@ Compile / sourceDirectories := Seq(file("sources1"), file("sources2"))
 
 #### When settings are undefined
 
+Whenever a setting uses `:=`, `+=`, or `++=` to create a dependency on itself or another key's value, the value it depends on must exist.
+If it does not, sbt will complain.
+It might say "Reference to undefined setting", for example.
+When this happens, be sure you're using the key in the scope that defines it.
+
+It's possible to create cycles, which is an error;
+sbt will tell you if you do this.
+
 #### Tasks based on other keys' values
 
 #### Appending with dependencies: `+=` and `++=`
 
-### Scope delegation
+### Scope delegation (.value lookup)
 
 To summarize what we've learned so far:
 * A scope is a tuple of components in three axes: the subproject axis, the configuration axis, and the task axis.
 * There's a special scope component `Zero` for any of the scope axes.
-* There's a special scope component `ThisBuild` for the subprojects axis only.
+* There's a special scope component `ThisBuild` for **the subprojects axis** only.
 * `Test` extends `Runtime`, and `Runtime` extends `Compile` configuration.
 * A key placed in `build.sbt` is scoped to `${current subproject} / Zero / Zero` by default.
 * A key can be scoped using `/` operator.
+
+sbt has a well-defined fallback search path called *scope delegation*.
+This feature allows you to set a value once in a more general scope, allowing multiple more-specific scopes to inherit the value.
 
 #### Scope delegation rules
 
@@ -599,6 +610,18 @@ Here are the rules for scope delegation:
 * Rule 5: A delegated scoped key and its dependent settings/tasks are evaluated without carrying the original context.
 
 We will look at each rule in the rest of this page.
+
+##### Rule 1: Scope axis precedence
+
+In other words, given two scope candidates, if one has more specific value on the subproject axis, it will always win regardless of the configuration or the task scoping.
+Similarly, if subprojects are the same, one with more specific configuration value will always win regardless of the task scoping.
+We will see more rules to define *more specific*.
+
+##### Rule 2: The task axis delegation
+
+##### Rule 3: The configuration axis search path
+
+##### Rule 4: The subproject axis search path
 
 #### `inspect` command lists the delegates
 
@@ -612,6 +635,14 @@ Library dependencies can be added in two ways:
 * *managed dependencies* are configured in the build definition and downloaded automatically from repositories
 
 #### Unmanaged dependencies
+
+Unmanaged dependencies work like this: add jars to lib and they will be placed on the project classpath.
+Not much else to it!
+
+Dependencies in lib go on all the classpaths (for `compile`, `test`, `run`, and `console`).
+If you wanted to change the classpath for just one of those, you would adjust `Compile / dependencyClasspath` or `Runtime / dependencyClasspath` for example.
+
+There's nothing to add to `build.sbt` to use unmanaged dependencies, though you could change the `unmanagedBase` key if you'd like to use a different directory rather than `lib`.
 
 #### Managed dependencies
 
@@ -630,6 +661,8 @@ or like this, where `configuration` can be a string or a `Configuration` value (
 ```sbt
 libraryDependencies += groupID % artifactID % revision % configuration
 ```
+
+The `%` methods create `ModuleID` objects from strings, then you add those `ModuleID` to `libraryDependencies`.
 
 ##### Getting the right Scala version with `%%`
 
@@ -657,15 +690,45 @@ resolvers += name at location
 ```
 with the special `at` between two strings.
 
+The `at` method creates a `Resolver` object from two strings.
+
+##### Overriding default resolvers
+
+`resolvers` does not contain the default resolvers;
+only additional ones added by your build definition.
+
+sbt combines `resolvers` with some default repositories to form `externalResolvers`.
+
+Therefore, to change or remove the default resolvers, you would need to override `externalResolvers` instead of `resolvers`.
+
+##### Per-configuration dependencies
+
 ### Using plugins
+
+#### What is a plugin?
 
 A plugin extends the build definition, most commonly by adding new settings.
 The new settings could be new tasks.
 For example, a plugin could add a `codeCoverage` task which would generate a test coverage report.
 
+#### Declaring a plugin
+
+#### Enabling and disabling auto plugins
+
+#### Global plugins
+
+#### Available plugins
+
 ### Custom settings and tasks
 
 #### Defining a key
+
+Keys is packed with examples illustrating how to define keys.
+Most of the keys are implemented in Defaults.
+
+The key constructors have two string parameters: the name of the key (`"scalaVersion"`) and a documentation string (`"The version of scala used for building."`).
+
+#### Implementing a task
 
 ### Organizing the build
 
